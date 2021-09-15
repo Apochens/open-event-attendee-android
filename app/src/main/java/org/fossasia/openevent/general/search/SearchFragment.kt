@@ -2,6 +2,7 @@ package org.fossasia.openevent.general.search
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -106,6 +107,11 @@ class SearchFragment : Fragment(), ComplexBackPressFragment, BottomIconDoubleCli
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         rootView.fabSearch.setOnClickListener {
+
+            /** Themis-#2198-Medium */
+            Log.i("Themis-#2198-Medium", "Step 2: Clicked the fabSearch in Search page.")
+            /** Themis-#2198-Medium */
+
             makeSearch()
         }
         rootView.searchText.setOnClickListener {

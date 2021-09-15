@@ -4,6 +4,7 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -198,6 +199,11 @@ class SearchResultsFragment : Fragment(), CompoundButton.OnCheckedChangeListener
             activity?.onBackPressed()
         }
         rootView.filter.setOnClickListener {
+
+            /** Themis-#2198-Medium */
+            Log.i("Themis-#2198-Medium", "Step 3: Clicked \"filter\" image button in search result page.")
+            /** Themis-#2198-Medium */
+
             findNavController(rootView)
                 .navigate(SearchResultsFragmentDirections.actionSearchResultsToSearchFilter(
                     date = safeArgs.date,

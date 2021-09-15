@@ -3,6 +3,7 @@ package org.fossasia.openevent.general
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -39,6 +40,13 @@ class MainActivity : AppCompatActivity() {
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             currentFragmentId = destination.id
+
+            /** Themis-#2198-Medium */
+            if (currentFragmentId == 2131297037) {
+                Log.i("Themis-#2198-Medium", "Step 1: Selected the \"Search\" in the bottom NavBar.");
+            }
+            /** Themis-#2198-Medium */
+
             handleNavigationVisibility(currentFragmentId)
         }
         AppLinkUtils.handleIntent(intent, navController)

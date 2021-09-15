@@ -1,6 +1,7 @@
 package org.fossasia.openevent.general.search
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -124,6 +125,11 @@ class SearchFilterFragment : Fragment() {
 
         rootView.tvSelectCategory.text = selectedCategory
         rootView.tvSelectCategory.setOnClickListener {
+
+            /** Themis-#2198-Medium */
+            Log.i("Themis-#2198-Medium", "Step 4: Clicked the \"Category\" text view in search filter page.")
+            /** Themis-#2198-Medium */
+
             findNavController(rootView).navigate(SearchFilterFragmentDirections.actionSearchFilterToSearchType(
                 selectedCategory,
                 SEARCH_FILTER_FRAGMENT,
