@@ -10,8 +10,8 @@ import androidx.lifecycle.Observer
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.content_no_internet.view.retry
 import kotlinx.android.synthetic.main.content_no_internet.view.noInternetCard
+import kotlinx.android.synthetic.main.content_no_internet.view.retry
 import kotlinx.android.synthetic.main.fragment_search_type.view.eventTypesRecyclerView
 import kotlinx.android.synthetic.main.fragment_search_type.view.eventTypesTextTitle
 import kotlinx.android.synthetic.main.fragment_search_type.view.shimmerSearchEventTypes
@@ -28,7 +28,7 @@ class SearchTypeFragment : Fragment() {
     private val searchTypeViewModel by viewModel<SearchTypeViewModel>()
     private val safeArgs: SearchTypeFragmentArgs by navArgs()
     private lateinit var rootView: View
-    private val eventTypesList: MutableList<String> = arrayListOf(getString(R.string.anything))
+    private val eventTypesList = ArrayList<String>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,10 +41,11 @@ class SearchTypeFragment : Fragment() {
         rootView.eventTypesRecyclerView.layoutManager = LinearLayoutManager(activity)
         rootView.eventTypesRecyclerView.adapter = typesAdapter
         searchTypeViewModel.loadEventTypes()
+        eventTypesList.add(getString(R.string.anything))
 
         searchTypeViewModel.connection
             .nonNull()
-            .observe(this, Observer { isConnected ->
+            .observe(viewLifecycleOwner, Observer { isConnected ->
                 if (isConnected) {
                     searchTypeViewModel.loadEventTypes()
                     showNoInternetError(false)
@@ -66,7 +67,7 @@ class SearchTypeFragment : Fragment() {
 
         searchTypeViewModel.eventTypes
             .nonNull()
-            .observe(this, Observer { list ->
+            .observe(viewLifecycleOwner, Observer { list ->
                 list.forEach {
                     eventTypesList.add(it.name)
                 }

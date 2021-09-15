@@ -1,47 +1,49 @@
 package org.fossasia.openevent.general.ticket
 
-import androidx.appcompat.app.AlertDialog
 import android.os.Bundle
 import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.navArgs
-import kotlinx.android.synthetic.main.content_no_internet.view.retry
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import java.util.Currency
+import kotlin.collections.ArrayList
 import kotlinx.android.synthetic.main.content_no_internet.view.noInternetCard
+import kotlinx.android.synthetic.main.content_no_internet.view.retry
 import kotlinx.android.synthetic.main.fragment_tickets.ticketsCoordinatorLayout
+import kotlinx.android.synthetic.main.fragment_tickets.view.applyButton
+import kotlinx.android.synthetic.main.fragment_tickets.view.applyDiscountCode
+import kotlinx.android.synthetic.main.fragment_tickets.view.cancelDiscountCode
+import kotlinx.android.synthetic.main.fragment_tickets.view.discountCodeAppliedLayout
+import kotlinx.android.synthetic.main.fragment_tickets.view.discountCodeEditText
+import kotlinx.android.synthetic.main.fragment_tickets.view.discountCodeLayout
 import kotlinx.android.synthetic.main.fragment_tickets.view.eventName
 import kotlinx.android.synthetic.main.fragment_tickets.view.organizerName
 import kotlinx.android.synthetic.main.fragment_tickets.view.register
 import kotlinx.android.synthetic.main.fragment_tickets.view.ticketInfoTextView
 import kotlinx.android.synthetic.main.fragment_tickets.view.ticketTableHeader
+import kotlinx.android.synthetic.main.fragment_tickets.view.ticketsCoordinatorLayout
 import kotlinx.android.synthetic.main.fragment_tickets.view.ticketsRecycler
 import kotlinx.android.synthetic.main.fragment_tickets.view.time
-import kotlinx.android.synthetic.main.fragment_tickets.view.ticketsCoordinatorLayout
-import kotlinx.android.synthetic.main.fragment_tickets.view.discountCodeEditText
-import kotlinx.android.synthetic.main.fragment_tickets.view.discountCodeLayout
-import kotlinx.android.synthetic.main.fragment_tickets.view.discountCodeAppliedLayout
-import kotlinx.android.synthetic.main.fragment_tickets.view.cancelDiscountCode
-import kotlinx.android.synthetic.main.fragment_tickets.view.applyDiscountCode
-import kotlinx.android.synthetic.main.fragment_tickets.view.applyButton
 import org.fossasia.openevent.general.R
 import org.fossasia.openevent.general.event.Event
 import org.fossasia.openevent.general.event.EventUtils
-import org.fossasia.openevent.general.utils.Utils.progressDialog
-import org.fossasia.openevent.general.utils.Utils.show
 import org.fossasia.openevent.general.utils.Utils.hideSoftKeyboard
-import org.fossasia.openevent.general.utils.extensions.nonNull
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.fossasia.openevent.general.utils.Utils.progressDialog
 import org.fossasia.openevent.general.utils.Utils.setToolbar
+import org.fossasia.openevent.general.utils.Utils.show
+import org.fossasia.openevent.general.utils.extensions.nonNull
 import org.jetbrains.anko.design.longSnackbar
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 const val TICKETS_FRAGMENT = "ticketsFragment"
 const val APPLY_DISCOUNT_CODE = 1
@@ -55,11 +57,10 @@ class TicketsFragment : Fragment() {
     private lateinit var rootView: View
     private lateinit var linearLayoutManager: LinearLayoutManager
     private var ticketIdAndQty = ArrayList<Triple<Int, Int, Float>>()
-    private var totalAmount: Float = 0.0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ticketsRecyclerAdapter.setCurrency(safeArgs.currency)
+        ticketsRecyclerAdapter.setCurrency(Currency.getInstance(safeArgs.currency).symbol)
     }
 
     override fun onCreateView(
@@ -109,34 +110,28 @@ class TicketsFragment : Fragment() {
 
         ticketsViewModel.event
             .nonNull()
-            .observe(this, Observer {
+            .observe(viewLifecycleOwner, Observer {
                 loadEventDetails(it)
             })
 
         ticketsViewModel.tickets
             .nonNull()
-            .observe(this, Observer {
+            .observe(viewLifecycleOwner, Observer {
                 ticketsRecyclerAdapter.addAll(it)
                 ticketsRecyclerAdapter.notifyDataSetChanged()
             })
 
         rootView.register.setOnClickListener {
             if (!ticketsViewModel.totalTicketsEmpty(ticketIdAndQty)) {
-                ticketsViewModel.getAmount(ticketIdAndQty)
+                checkForAuthentication()
             } else {
                 showErrorMessage(resources.getString(R.string.no_tickets_message))
             }
         }
 
-        ticketsViewModel.amount
-            .nonNull()
-            .observe(viewLifecycleOwner, Observer {
-                totalAmount = it
-                checkForAuthentication()
-            })
-
         rootView.retry.setOnClickListener {
             loadTickets()
+            loadTaxDetails()
         }
 
         rootView.applyDiscountCode.setOnClickListener {
@@ -149,7 +144,7 @@ class TicketsFragment : Fragment() {
                 return@setOnClickListener
             }
             hideSoftKeyboard(context, rootView)
-            ticketsViewModel.fetchDiscountCode(rootView.discountCodeEditText.text.toString().trim())
+            ticketsViewModel.fetchDiscountCode(safeArgs.eventId, rootView.discountCodeEditText.text.toString().trim())
         }
 
         ticketsViewModel.discountCode
@@ -177,7 +172,10 @@ class TicketsFragment : Fragment() {
         ticketsViewModel.connection
             .nonNull()
             .observe(viewLifecycleOwner, Observer { isConnected ->
-                loadTickets()
+                if (isConnected) {
+                    loadTickets()
+                    loadTaxDetails()
+                }
                 showNoInternetScreen(!isConnected && ticketsViewModel.tickets.value == null)
             })
 
@@ -191,6 +189,19 @@ class TicketsFragment : Fragment() {
             override fun onSelected(ticketId: Int, quantity: Int, donation: Float) {
                 handleTicketSelect(ticketId, quantity, donation)
                 ticketsViewModel.ticketIdAndQty.value = ticketIdAndQty
+                ticketsViewModel.totalAmount = ticketsViewModel.getAmount(ticketIdAndQty)
+                when {
+                    ticketsViewModel.totalAmount == -1F -> {
+                        ticketsViewModel.tickets.value?.let {
+                            if (it.any { ticket -> ticket.price > 0 })
+                                rootView.register.text = getString(R.string.order_now)
+                            else
+                                rootView.register.text = getString(R.string.register)
+                        }
+                    }
+                    ticketsViewModel.totalAmount > 0 -> rootView.register.text = getString(R.string.order_now)
+                    else -> rootView.register.text = getString(R.string.register)
+                }
             }
         }
         ticketsRecyclerAdapter.setSelectListener(ticketSelectedListener)
@@ -214,15 +225,13 @@ class TicketsFragment : Fragment() {
 
     private fun redirectToAttendee() {
         val wrappedTicketAndQty = TicketIdAndQtyWrapper(ticketIdAndQty)
-        ticketsViewModel.mutableAmount.value = null
         findNavController(rootView).navigate(TicketsFragmentDirections.actionTicketsToAttendee(
             eventId = safeArgs.eventId,
             ticketIdAndQty = wrappedTicketAndQty,
             currency = safeArgs.currency,
-            amount = totalAmount,
-            hasPaidTickets = ticketsViewModel.hasPaidTickets
+            amount = ticketsViewModel.totalAmount,
+            taxAmount = ticketsViewModel.totalTaxAmount
         ))
-        ticketsViewModel.hasPaidTickets = false
     }
 
     private fun redirectToLogin() {
@@ -293,6 +302,16 @@ class TicketsFragment : Fragment() {
             ticketsRecyclerAdapter.setTicketAndQty(retainedTicketIdAndQty)
             ticketsRecyclerAdapter.notifyDataSetChanged()
         }
+    }
+
+    private fun loadTaxDetails() {
+        ticketsViewModel.getTaxDetails(safeArgs.eventId)
+        ticketsViewModel.taxInfo
+            .nonNull()
+            .observe(viewLifecycleOwner, Observer {
+                ticketsRecyclerAdapter.applyTax(it)
+                ticketsRecyclerAdapter.notifyDataSetChanged()
+            })
     }
 
     private fun showNoInternetScreen(show: Boolean) {

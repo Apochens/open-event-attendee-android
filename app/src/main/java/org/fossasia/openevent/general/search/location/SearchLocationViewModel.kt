@@ -1,25 +1,27 @@
 package org.fossasia.openevent.general.search.location
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.mapbox.api.geocoding.v5.MapboxGeocoding
 import com.mapbox.api.geocoding.v5.models.CarmenFeature
 import io.reactivex.Observable
-import io.reactivex.rxkotlin.plusAssign
-import org.fossasia.openevent.general.utils.extensions.withDefaultSchedulers
-import org.fossasia.openevent.general.BuildConfig
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
+import java.lang.StringBuilder
+import java.util.concurrent.TimeUnit
+import org.fossasia.openevent.general.BuildConfig
+import org.fossasia.openevent.general.R
 import org.fossasia.openevent.general.data.Preference
+import org.fossasia.openevent.general.data.Resource
 import org.fossasia.openevent.general.event.EventService
 import org.fossasia.openevent.general.event.location.EventLocation
+import org.fossasia.openevent.general.utils.extensions.withDefaultSchedulers
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import timber.log.Timber
-import java.lang.StringBuilder
-import java.util.concurrent.TimeUnit
 
 const val SAVED_LOCATION = "LOCATION"
 const val SAVED_LOCATION_LIST = "LOCATION_LIST"
@@ -28,7 +30,8 @@ const val SEARCH_INTERVAL = 250L
 
 class SearchLocationViewModel(
     private val eventService: EventService,
-    private val preference: Preference
+    private val preference: Preference,
+    private val resource: Resource
 ) : ViewModel() {
 
     private val compositeDisposable = CompositeDisposable()
@@ -43,6 +46,8 @@ class SearchLocationViewModel(
 
     fun saveSearch(query: String) {
         preference.putString(SAVED_LOCATION, query)
+
+        if (query == resource.getString(R.string.no_location)) return
 
         if (savedLocationList.size == SAVED_LOCATION_LIST_SIZE)
             savedLocationList.removeAt(SAVED_LOCATION_LIST_SIZE - 1)

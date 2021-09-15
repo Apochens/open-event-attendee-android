@@ -1,61 +1,60 @@
 package org.fossasia.openevent.general.attendees
 
-import androidx.recyclerview.widget.RecyclerView
 import android.text.Editable
-import android.text.InputType
 import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import kotlinx.android.synthetic.main.item_attendee.view.firstNameLayout
-import kotlinx.android.synthetic.main.item_attendee.view.firstName
-import kotlinx.android.synthetic.main.item_attendee.view.lastNameLayout
-import kotlinx.android.synthetic.main.item_attendee.view.lastName
-import kotlinx.android.synthetic.main.item_attendee.view.emailLayout
-import kotlinx.android.synthetic.main.item_attendee.view.email
-import kotlinx.android.synthetic.main.item_attendee.view.attendeeBillingAddressLayout
-import kotlinx.android.synthetic.main.item_attendee.view.attendeeBillingAddress
-import kotlinx.android.synthetic.main.item_attendee.view.phoneLayout
-import kotlinx.android.synthetic.main.item_attendee.view.phone
-import kotlinx.android.synthetic.main.item_attendee.view.workPhoneLayout
-import kotlinx.android.synthetic.main.item_attendee.view.workPhone
-import kotlinx.android.synthetic.main.item_attendee.view.addressLayout
 import kotlinx.android.synthetic.main.item_attendee.view.address
-import kotlinx.android.synthetic.main.item_attendee.view.workAddressLayout
-import kotlinx.android.synthetic.main.item_attendee.view.workAddress
-import kotlinx.android.synthetic.main.item_attendee.view.blogLayout
+import kotlinx.android.synthetic.main.item_attendee.view.addressLayout
+import kotlinx.android.synthetic.main.item_attendee.view.attendeeBillingAddress
+import kotlinx.android.synthetic.main.item_attendee.view.attendeeBillingAddressLayout
 import kotlinx.android.synthetic.main.item_attendee.view.blog
-import kotlinx.android.synthetic.main.item_attendee.view.websiteLayout
-import kotlinx.android.synthetic.main.item_attendee.view.website
-import kotlinx.android.synthetic.main.item_attendee.view.twitterLayout
-import kotlinx.android.synthetic.main.item_attendee.view.twitter
-import kotlinx.android.synthetic.main.item_attendee.view.facebookLayout
-import kotlinx.android.synthetic.main.item_attendee.view.facebook
-import kotlinx.android.synthetic.main.item_attendee.view.githubLayout
-import kotlinx.android.synthetic.main.item_attendee.view.github
-import kotlinx.android.synthetic.main.item_attendee.view.shippingAddressLayout
-import kotlinx.android.synthetic.main.item_attendee.view.shippingAddress
-import kotlinx.android.synthetic.main.item_attendee.view.taxBusinessInfoLayout
-import kotlinx.android.synthetic.main.item_attendee.view.taxBusinessInfo
-import kotlinx.android.synthetic.main.item_attendee.view.stateLayout
-import kotlinx.android.synthetic.main.item_attendee.view.state
-import kotlinx.android.synthetic.main.item_attendee.view.homeAddressLayout
-import kotlinx.android.synthetic.main.item_attendee.view.homeAddress
-import kotlinx.android.synthetic.main.item_attendee.view.cityLayout
+import kotlinx.android.synthetic.main.item_attendee.view.blogLayout
 import kotlinx.android.synthetic.main.item_attendee.view.city
-import kotlinx.android.synthetic.main.item_attendee.view.genderLayout
-import kotlinx.android.synthetic.main.item_attendee.view.genderText
-import kotlinx.android.synthetic.main.item_attendee.view.genderSpinner
+import kotlinx.android.synthetic.main.item_attendee.view.cityLayout
 import kotlinx.android.synthetic.main.item_attendee.view.company
 import kotlinx.android.synthetic.main.item_attendee.view.companyLayout
-import kotlinx.android.synthetic.main.item_attendee.view.countryLayout
 import kotlinx.android.synthetic.main.item_attendee.view.country
-import kotlinx.android.synthetic.main.item_attendee.view.jobTitleLayout
+import kotlinx.android.synthetic.main.item_attendee.view.countryLayout
+import kotlinx.android.synthetic.main.item_attendee.view.email
+import kotlinx.android.synthetic.main.item_attendee.view.emailLayout
+import kotlinx.android.synthetic.main.item_attendee.view.facebook
+import kotlinx.android.synthetic.main.item_attendee.view.facebookLayout
+import kotlinx.android.synthetic.main.item_attendee.view.firstName
+import kotlinx.android.synthetic.main.item_attendee.view.firstNameLayout
+import kotlinx.android.synthetic.main.item_attendee.view.genderLayout
+import kotlinx.android.synthetic.main.item_attendee.view.genderSpinner
+import kotlinx.android.synthetic.main.item_attendee.view.genderText
+import kotlinx.android.synthetic.main.item_attendee.view.github
+import kotlinx.android.synthetic.main.item_attendee.view.githubLayout
+import kotlinx.android.synthetic.main.item_attendee.view.homeAddress
+import kotlinx.android.synthetic.main.item_attendee.view.homeAddressLayout
 import kotlinx.android.synthetic.main.item_attendee.view.jobTitle
+import kotlinx.android.synthetic.main.item_attendee.view.jobTitleLayout
+import kotlinx.android.synthetic.main.item_attendee.view.lastName
+import kotlinx.android.synthetic.main.item_attendee.view.lastNameLayout
+import kotlinx.android.synthetic.main.item_attendee.view.phone
+import kotlinx.android.synthetic.main.item_attendee.view.phoneLayout
+import kotlinx.android.synthetic.main.item_attendee.view.shippingAddress
+import kotlinx.android.synthetic.main.item_attendee.view.shippingAddressLayout
+import kotlinx.android.synthetic.main.item_attendee.view.state
+import kotlinx.android.synthetic.main.item_attendee.view.stateLayout
+import kotlinx.android.synthetic.main.item_attendee.view.taxBusinessInfo
+import kotlinx.android.synthetic.main.item_attendee.view.taxBusinessInfoLayout
+import kotlinx.android.synthetic.main.item_attendee.view.twitter
+import kotlinx.android.synthetic.main.item_attendee.view.twitterLayout
+import kotlinx.android.synthetic.main.item_attendee.view.website
+import kotlinx.android.synthetic.main.item_attendee.view.websiteLayout
+import kotlinx.android.synthetic.main.item_attendee.view.workAddress
+import kotlinx.android.synthetic.main.item_attendee.view.workAddressLayout
+import kotlinx.android.synthetic.main.item_attendee.view.workPhone
+import kotlinx.android.synthetic.main.item_attendee.view.workPhoneLayout
 import org.fossasia.openevent.general.R
 import org.fossasia.openevent.general.attendees.forms.CustomForm
 import org.fossasia.openevent.general.attendees.forms.FormIdentifier
@@ -68,12 +67,12 @@ import org.fossasia.openevent.general.utils.checkEmpty
 import org.fossasia.openevent.general.utils.checkValidEmail
 import org.fossasia.openevent.general.utils.checkValidURI
 import org.fossasia.openevent.general.utils.emptyToNull
-import org.fossasia.openevent.general.utils.setRequired
 import org.fossasia.openevent.general.utils.nullToEmpty
+import org.fossasia.openevent.general.utils.setRequired
 
 class AttendeeViewHolder(private val binding: ItemAttendeeBinding) : RecyclerView.ViewHolder(binding.root) {
     private val resource = Resource()
-    private val requiredList = mutableListOf<TextInputEditText>()
+    private val requiredList = mutableListOf<Pair<TextInputEditText, TextInputLayout>>()
     var onAttendeeDetailChanged: AttendeeDetailChangeListener? = null
 
     fun bind(
@@ -206,7 +205,7 @@ class AttendeeViewHolder(private val binding: ItemAttendeeBinding) : RecyclerVie
         editText.addTextChangedListener(textWatcher)
         if (isRequired) {
             layout.setRequired()
-            requiredList.add(editText)
+            requiredList.add(Pair(editText, layout))
         }
     }
 
@@ -217,12 +216,19 @@ class AttendeeViewHolder(private val binding: ItemAttendeeBinding) : RecyclerVie
     }
 
     fun checkValidFields(): Boolean {
+        var valid = true
         requiredList.forEach {
-            if (!it.checkEmpty() ||
-                (it.inputType == InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS && !it.checkValidEmail()) ||
-                (it.inputType == InputType.TYPE_TEXT_VARIATION_URI && !it.checkValidURI())) return false
+            valid = it.first.checkEmpty(it.second) &&
+                when (it.second) {
+                    itemView.emailLayout -> it.first.checkValidEmail(it.second)
+                    itemView.websiteLayout,
+                    itemView.facebookLayout,
+                    itemView.twitterLayout,
+                    itemView.facebookLayout -> it.first.checkValidURI(it.second)
+                    else -> true
+                }
         }
-        return true
+        return valid
     }
 
     private fun getAttendeeInformation(id: Long, ticket: Ticket, eventId: Long): Attendee {

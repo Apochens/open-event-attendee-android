@@ -5,12 +5,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
-import org.fossasia.openevent.general.utils.extensions.withDefaultSchedulers
 import org.fossasia.openevent.general.R
 import org.fossasia.openevent.general.common.SingleLiveEvent
 import org.fossasia.openevent.general.data.Resource
 import org.fossasia.openevent.general.event.Event
 import org.fossasia.openevent.general.event.EventService
+import org.fossasia.openevent.general.utils.extensions.withDefaultSchedulers
 import timber.log.Timber
 
 class AboutEventViewModel(private val eventService: EventService, private val resource: Resource) : ViewModel() {
@@ -22,11 +22,11 @@ class AboutEventViewModel(private val eventService: EventService, private val re
     private val mutableEvent = MutableLiveData<Event>()
     val event: LiveData<Event> = mutableEvent
     private val mutableError = SingleLiveEvent<String>()
-    val error: LiveData<String> = mutableError
+    val error: SingleLiveEvent<String> = mutableError
 
     fun loadEvent(id: Long) {
         if (id == -1L) {
-            mutableError.value = Resource().getString(R.string.error_fetching_event_message)
+            mutableError.value = resource.getString(R.string.error_fetching_event_message)
             return
         }
         compositeDisposable += eventService.getEvent(id)

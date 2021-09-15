@@ -1,5 +1,5 @@
 plugins {
-    id "com.diffplug.gradle.spotless" version "3.23.1"
+    id "com.diffplug.gradle.spotless" version "4.5.0"
 }
 
 apply plugin: 'com.android.application'
@@ -12,6 +12,7 @@ apply plugin: 'jacoco'
 
 def STRIPE_API_TOKEN = System.getenv('STRIPE_API_TOKEN') ?: "YOUR_API_KEY"
 def MAPBOX_KEY = System.getenv('MAPBOX_KEY') ?: "pk.eyJ1IjoiYW5nbWFzMSIsImEiOiJjanNqZDd0N2YxN2Q5NDNuNTBiaGt6eHZqIn0.BCrxjW6rP_OuOuGtbhVEQg"
+def PAYPAL_CLIENT_ID= System.getenv('PAYPAL_CLIENT_ID') ?: "YOUR_API_KEY"
 def LOCAL_KEY_PRESENT = project.hasProperty('SIGNING_KEY_FILE') && rootProject.file(SIGNING_KEY_FILE).exists()
 
 android {
@@ -23,8 +24,8 @@ android {
         applicationId "com.eventyay.attendee"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 11
-        versionName "0.5.0"
+        versionCode 17
+        versionName "0.9.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
@@ -59,6 +60,7 @@ android {
             buildConfigField "String", "DEFAULT_BASE_URL", '"https://api.eventyay.com/v1/"'
             buildConfigField "String", "MAPBOX_KEY", '"'+MAPBOX_KEY+'"'
             buildConfigField "String", "STRIPE_API_KEY", '"'+STRIPE_API_TOKEN+'"'
+            buildConfigField "String", "PAYPAL_CLIENT_ID", '"'+PAYPAL_CLIENT_ID+'"'
             resValue "string",  "FRONTEND_HOST", "eventyay.com"
             if (LOCAL_KEY_PRESENT || TRAVIS_BUILD)
                 signingConfig signingConfigs.release
@@ -67,6 +69,7 @@ android {
             buildConfigField "String", "DEFAULT_BASE_URL", '"https://open-event-api-dev.herokuapp.com/v1/"'
             buildConfigField "String", "MAPBOX_KEY", '"'+MAPBOX_KEY+'"'
             buildConfigField "String", "STRIPE_API_KEY", '"'+STRIPE_API_TOKEN+'"'
+            buildConfigField "String", "PAYPAL_CLIENT_ID", '"'+PAYPAL_CLIENT_ID+'"'
             resValue "string", "FRONTEND_HOST", "open-event-fe.netlify.com"
             testCoverageEnabled true
         }
@@ -91,8 +94,31 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
+    // Exclusions added for Paypal SDK
     packagingOptions {
         pickFirst 'kotlin/**'
+        exclude 'lib/arm64-v8a/libcardioDecider.so'
+        exclude 'lib/arm64-v8a/libcardioRecognizer.so'
+        exclude 'lib/arm64-v8a/libcardioRecognizer_tegra2.so'
+        exclude 'lib/arm64-v8a/libopencv_core.so'
+        exclude 'lib/arm64-v8a/libopencv_imgproc.so'
+        exclude 'lib/armeabi/libcardioDecider.so'
+        exclude 'lib/armeabi-v7a/libcardioDecider.so'
+        exclude 'lib/armeabi-v7a/libcardioRecognizer.so'
+        exclude 'lib/armeabi-v7a/libcardioRecognizer_tegra2.so'
+        exclude 'lib/armeabi-v7a/libopencv_core.so'
+        exclude 'lib/armeabi-v7a/libopencv_imgproc.so'
+        exclude 'lib/mips/libcardioDecider.so'
+        exclude 'lib/x86/libcardioDecider.so'
+        exclude 'lib/x86/libcardioRecognizer.so'
+        exclude 'lib/x86/libcardioRecognizer_tegra2.so'
+        exclude 'lib/x86/libopencv_core.so'
+        exclude 'lib/x86/libopencv_imgproc.so'
+        exclude 'lib/x86_64/libcardioDecider.so'
+        exclude 'lib/x86_64/libcardioRecognizer.so'
+        exclude 'lib/x86_64/libcardioRecognizer_tegra2.so'
+        exclude 'lib/x86_64/libopencv_core.so'
+        exclude 'lib/x86_64/libopencv_imgproc.so'
     }
     lintOptions {
         disable 'MissingTranslation'
@@ -123,24 +149,24 @@ repositories {
 }
 
 dependencies {
-    def lifecycle_version = "2.2.0-alpha02"
+    def lifecycle_version = "2.2.0"
     def koin_version = "2.0.1"
-    def roomVersion = "2.1.0"
-    def ktx_version = "1.0.0"
-    def ktx2_version = "2.0.0"
-    def nav_version = "2.1.0-beta02"
+    def roomVersion = "2.2.5"
+    def ktx_version = "1.1.0"
+    def ktx2_version = "2.2.0"
+    def nav_version = "2.3.0"
     def anko_version = "0.10.8"
-    def paging_version = "2.1.0"
+    def paging_version = "2.1.2"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta2'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta7'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0-beta01'
-    implementation 'com.google.android.material:material:1.1.0-alpha08'
-    implementation "androidx.browser:browser:1.0.0"
-    implementation 'androidx.exifinterface:exifinterface:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'com.google.android.material:material:1.2.0-beta01'
+    implementation "androidx.browser:browser:1.2.0"
+    implementation 'androidx.exifinterface:exifinterface:1.2.0'
     implementation "androidx.lifecycle:lifecycle-extensions:${lifecycle_version}"
     implementation "androidx.lifecycle:lifecycle-common-java8:${lifecycle_version}"
     implementation "androidx.lifecycle:lifecycle-reactivestreams:${lifecycle_version}"
@@ -148,7 +174,7 @@ dependencies {
     implementation "androidx.room:room-rxjava2:${roomVersion}"
     kapt "androidx.room:room-compiler:${roomVersion}"
     testImplementation "androidx.room:room-testing:${roomVersion}"
-    implementation 'androidx.preference:preference:1.1.0-rc01'
+    implementation 'androidx.preference:preference:1.1.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     // KTX
@@ -166,32 +192,32 @@ dependencies {
     playStoreImplementation 'com.google.android.gms:play-services-location:17.0.0'
 
     //Smart Auth Play Service
-    playStoreImplementation 'com.google.android.gms:play-services-auth:17.0.0'
+    playStoreImplementation 'com.google.android.gms:play-services-auth:18.0.0'
 
     // Timber
     implementation 'com.jakewharton.timber:timber:4.7.1'
-    implementation 'com.jakewharton.threetenabp:threetenabp:1.2.1'
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.2.4'
 
-    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.6"
-    implementation 'com.github.jasminb:jsonapi-converter:0.9'
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.0.1'
-    implementation 'com.squareup.retrofit2:retrofit:2.6.0'
-    implementation 'com.squareup.retrofit2:converter-jackson:2.6.0'
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.11.1"
+    implementation 'com.github.jasminb:jsonapi-converter:0.10'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.7.2'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-jackson:2.9.0'
 
     // Cards Shimmer Animation
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
 
     // RxJava
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'io.reactivex.rxjava2:rxkotlin:2.3.0'
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.10'
-    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.6.0'
+    implementation 'io.reactivex.rxjava2:rxkotlin:2.4.0'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.19'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.9.0'
 
     // Picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
 
     // Stripe
-    implementation 'com.stripe:stripe-android:10.0.3'
+    implementation 'com.stripe:stripe-android:14.5.0'
 
     // QR Code
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
@@ -205,7 +231,7 @@ dependencies {
     implementation "org.jetbrains.anko:anko-design:$anko_version"
 
     //Mapbox java sdk
-    implementation 'com.mapbox.mapboxsdk:mapbox-sdk-services:4.8.0'
+    implementation 'com.mapbox.mapboxsdk:mapbox-sdk-services:5.3.0'
 
     // SimpleCropView
     implementation 'com.isseiaoki:simplecropview:1.1.8'
@@ -217,7 +243,7 @@ dependencies {
     testImplementation 'com.github.iamareebjamal:stetho-noop:1.2.1'
 
     //LeakCanary
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-alpha-3'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
 
     // Paging
     implementation "androidx.paging:paging-runtime:$paging_version"
@@ -226,11 +252,20 @@ dependencies {
     // Searchable Spinner
     implementation 'com.toptoche.searchablespinner:searchablespinnerlibrary:1.3.1'
 
+    //ExpandableTextView
+    implementation 'at.blogc:expandabletextview:1.0.5'
 
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'org.threeten:threetenbp:1.4.0'
+    //ExpandableView
+    implementation 'net.cachapa.expandablelayout:expandablelayout:2.9.2'
+
+
+    //PayPal
+    implementation 'com.paypal.sdk:paypal-android-sdk:2.16.0'
+
+    testImplementation 'junit:junit:4.13'
+    testImplementation 'org.threeten:threetenbp:1.4.4'
     testImplementation "org.koin:koin-test:$koin_version"
-    testImplementation 'androidx.arch.core:core-testing:2.0.1'
+    testImplementation 'androidx.arch.core:core-testing:2.1.0'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }

@@ -5,9 +5,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
-import org.fossasia.openevent.general.utils.extensions.withDefaultSchedulers
 import org.fossasia.openevent.general.R
+import org.fossasia.openevent.general.common.SingleLiveEvent
 import org.fossasia.openevent.general.data.Resource
+import org.fossasia.openevent.general.utils.extensions.withDefaultSchedulers
 import timber.log.Timber
 
 class SponsorsViewModel(
@@ -19,8 +20,8 @@ class SponsorsViewModel(
 
     private val mutableSponsors = MutableLiveData<List<Sponsor>>()
     val sponsors: LiveData<List<Sponsor>> = mutableSponsors
-    private val mutableError = MutableLiveData<String>()
-    val error: LiveData<String> = mutableError
+    private val mutableError = SingleLiveEvent<String>()
+    val error: SingleLiveEvent<String> = mutableError
     private val mutableProgress = MutableLiveData<Boolean>()
     val progress: LiveData<Boolean> = mutableProgress
 

@@ -4,22 +4,22 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Patterns
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.navArgs
-import kotlinx.android.synthetic.main.fragment_auth.view.getStartedButton
 import kotlinx.android.synthetic.main.fragment_auth.view.email
 import kotlinx.android.synthetic.main.fragment_auth.view.emailLayout
+import kotlinx.android.synthetic.main.fragment_auth.view.getStartedButton
 import kotlinx.android.synthetic.main.fragment_auth.view.rootLayout
+import kotlinx.android.synthetic.main.fragment_auth.view.setting
 import kotlinx.android.synthetic.main.fragment_auth.view.skipTextView
 import kotlinx.android.synthetic.main.fragment_auth.view.toolbar
-import kotlinx.android.synthetic.main.fragment_auth.view.setting
 import org.fossasia.openevent.general.BuildConfig
 import org.fossasia.openevent.general.ComplexBackPressFragment
 import org.fossasia.openevent.general.PLAY_STORE_BUILD_FLAVOR
@@ -31,9 +31,9 @@ import org.fossasia.openevent.general.search.location.SEARCH_LOCATION_FRAGMENT
 import org.fossasia.openevent.general.speakercall.SPEAKERS_CALL_FRAGMENT
 import org.fossasia.openevent.general.ticket.TICKETS_FRAGMENT
 import org.fossasia.openevent.general.utils.Utils.hideSoftKeyboard
-import org.fossasia.openevent.general.utils.Utils.show
 import org.fossasia.openevent.general.utils.Utils.progressDialog
 import org.fossasia.openevent.general.utils.Utils.setToolbar
+import org.fossasia.openevent.general.utils.Utils.show
 import org.fossasia.openevent.general.utils.extensions.nonNull
 import org.fossasia.openevent.general.utils.extensions.setSharedElementEnterTransition
 import org.fossasia.openevent.general.welcome.WELCOME_FRAGMENT
@@ -48,22 +48,11 @@ class AuthFragment : Fragment(), ComplexBackPressFragment {
     private val safeArgs: AuthFragmentArgs by navArgs()
     private val smartAuthViewModel by sharedViewModel<SmartAuthViewModel>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (BuildConfig.FLAVOR == PLAY_STORE_BUILD_FLAVOR) {
-            smartAuthViewModel.requestCredentials(SmartAuthUtil.getCredentialsClient(requireActivity()))
-            smartAuthViewModel.isCredentialStored
-                .nonNull()
-                .observe(this, Observer {
-                    if (it) redirectToLogin()
-                })
-        }
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         rootView = inflater.inflate(R.layout.fragment_auth, container, false)
         setSharedElementEnterTransition()
         setupToolbar()
+        checkCredentials()
 
         val progressDialog = progressDialog(context)
 
@@ -136,6 +125,17 @@ class AuthFragment : Fragment(), ComplexBackPressFragment {
         }
     }
 
+    private fun checkCredentials() {
+        if (BuildConfig.FLAVOR == PLAY_STORE_BUILD_FLAVOR) {
+            smartAuthViewModel.requestCredentials(SmartAuthUtil.getCredentialsClient(requireActivity()))
+            smartAuthViewModel.isCredentialStored
+                .nonNull()
+                .observe(viewLifecycleOwner, Observer {
+                    if (it) redirectToLogin()
+                })
+        }
+    }
+
     private fun setupToolbar() {
         setToolbar(activity, show = false)
         rootView.toolbar.setNavigationOnClickListener {
@@ -147,7 +147,8 @@ class AuthFragment : Fragment(), ComplexBackPressFragment {
     }
 
     private fun redirectToLogin(email: String = "") {
-        findNavController(rootView).navigate(AuthFragmentDirections.actionAuthToLogIn(email, safeArgs.redirectedFrom),
+        findNavController(rootView).navigate(
+            AuthFragmentDirections.actionAuthToLogIn(email, safeArgs.redirectedFrom, true),
             FragmentNavigatorExtras(rootView.email to "emailLoginTransition"))
     }
 

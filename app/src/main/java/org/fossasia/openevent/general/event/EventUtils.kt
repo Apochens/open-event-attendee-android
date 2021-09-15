@@ -6,9 +6,13 @@ import android.view.LayoutInflater
 import androidx.appcompat.app.AlertDialog
 import androidx.preference.PreferenceManager
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.dialog_login_to_like.view.getStartedButton
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import kotlinx.android.synthetic.main.dialog_login_to_like.view.eventImage
 import kotlinx.android.synthetic.main.dialog_login_to_like.view.eventName
+import kotlinx.android.synthetic.main.dialog_login_to_like.view.getStartedButton
 import org.fossasia.openevent.general.OpenEventGeneral
 import org.fossasia.openevent.general.R
 import org.fossasia.openevent.general.data.Resource
@@ -17,17 +21,13 @@ import org.threeten.bp.ZoneId
 import org.threeten.bp.ZonedDateTime
 import org.threeten.bp.format.DateTimeFormatter
 import timber.log.Timber
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
 
 object EventUtils {
 
     fun loadMapUrl(event: Event) = "geo:<${event.latitude}>,<${event.longitude}>" +
         "?q=<${event.latitude}>,<${event.longitude}>"
 
-    fun getEventDateTime(dateString: String, timeZone: String?): ZonedDateTime {
+    fun getEventDateTime(dateString: String, timeZone: String? = null): ZonedDateTime {
         try {
             return when (PreferenceManager.getDefaultSharedPreferences(OpenEventGeneral.appContext)
                 .getBoolean(LOCAL_TIMEZONE, false) && !timeZone.isNullOrBlank()) {
@@ -51,7 +51,7 @@ object EventUtils {
     }
 
     fun getFormattedDate(date: ZonedDateTime): String {
-        val dateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMM d, y")
+        val dateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, y")
         return try {
             dateFormat.format(date)
         } catch (e: IllegalArgumentException) {

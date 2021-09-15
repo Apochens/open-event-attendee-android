@@ -13,16 +13,11 @@ import androidx.lifecycle.Observer
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import kotlinx.android.synthetic.main.fragment_login.email
-import kotlinx.android.synthetic.main.fragment_login.password
 import kotlinx.android.synthetic.main.fragment_login.loginButton
-import kotlinx.android.synthetic.main.fragment_login.view.password
+import kotlinx.android.synthetic.main.fragment_login.password
+import kotlinx.android.synthetic.main.fragment_login.view.*
 import kotlinx.android.synthetic.main.fragment_login.view.email
-import kotlinx.android.synthetic.main.fragment_login.view.loginCoordinatorLayout
-import kotlinx.android.synthetic.main.fragment_login.view.forgotPassword
-import kotlinx.android.synthetic.main.fragment_login.view.loginButton
-import kotlinx.android.synthetic.main.fragment_login.view.loginLayout
-import kotlinx.android.synthetic.main.fragment_login.view.sentEmailLayout
-import kotlinx.android.synthetic.main.fragment_login.view.tick
+import kotlinx.android.synthetic.main.fragment_login.view.skipTextView
 import kotlinx.android.synthetic.main.fragment_login.view.toolbar
 import org.fossasia.openevent.general.BuildConfig
 import org.fossasia.openevent.general.PLAY_STORE_BUILD_FLAVOR
@@ -35,11 +30,11 @@ import org.fossasia.openevent.general.search.ORDER_COMPLETED_FRAGMENT
 import org.fossasia.openevent.general.search.SEARCH_RESULTS_FRAGMENT
 import org.fossasia.openevent.general.speakercall.SPEAKERS_CALL_FRAGMENT
 import org.fossasia.openevent.general.ticket.TICKETS_FRAGMENT
+import org.fossasia.openevent.general.utils.Utils.hideSoftKeyboard
+import org.fossasia.openevent.general.utils.Utils.progressDialog
 import org.fossasia.openevent.general.utils.Utils.setToolbar
 import org.fossasia.openevent.general.utils.Utils.show
 import org.fossasia.openevent.general.utils.Utils.showNoInternetDialog
-import org.fossasia.openevent.general.utils.Utils.hideSoftKeyboard
-import org.fossasia.openevent.general.utils.Utils.progressDialog
 import org.fossasia.openevent.general.utils.extensions.nonNull
 import org.fossasia.openevent.general.utils.extensions.setSharedElementEnterTransition
 import org.jetbrains.anko.design.longSnackbar
@@ -67,6 +62,10 @@ class LoginFragment : Fragment() {
             activity?.onBackPressed()
         }
 
+        rootView.settings.setOnClickListener {
+            findNavController(rootView).navigate(LoginFragmentDirections.actionLoginToSetting())
+        }
+
         if (loginViewModel.isLoggedIn())
             popBackStack()
 
@@ -75,14 +74,23 @@ class LoginFragment : Fragment() {
             hideSoftKeyboard(context, rootView)
         }
 
+        rootView.skipTextView.isVisible = safeArgs.showSkipButton
+        rootView.skipTextView.setOnClickListener {
+            findNavController(rootView).navigate(
+                LoginFragmentDirections.actionLoginToEventsPop()
+            )
+        }
+
         if (safeArgs.email.isNotEmpty()) {
             setSharedElementEnterTransition()
             rootView.email.text = SpannableStringBuilder(safeArgs.email)
             rootView.email.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(s: Editable) {
-                    if (s.toString() != safeArgs.email)
+                    if (s.toString() != safeArgs.email) {
                         findNavController(rootView).navigate(LoginFragmentDirections
                             .actionLoginToAuthPop(redirectedFrom = safeArgs.redirectedFrom, email = s.toString()))
+                        rootView.email.removeTextChangedListener(this)
+                    }
                 }
 
                 override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) { /*Do Nothing*/ }
@@ -152,7 +160,8 @@ class LoginFragment : Fragment() {
         loginViewModel.requestTokenSuccess
             .nonNull()
             .observe(viewLifecycleOwner, Observer {
-                if (it) {
+                if (it.status) {
+                    rootView.mailSentTextView.text = it.message
                     rootView.sentEmailLayout.isVisible = true
                     rootView.tick.isVisible = true
                     rootView.loginLayout.isVisible = false

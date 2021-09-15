@@ -4,6 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    android:id="@+id/swipeRefresh"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 <androidx.core.widget.NestedScrollView
     android:id="@+id/scrollView"
     android:orientation="vertical"
@@ -85,6 +89,7 @@
                 app:layout_constraintTop_toBottomOf="@id/ordersRecycler"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
+                android:textAlignment="center"
                 android:visibility="gone"
                 tools:visibility="visible"
                 layout="@layout/content_no_internet" />
@@ -114,7 +119,7 @@
                 android:id="@+id/noTicketsScreen"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/layout_margin_extra_large"
+                android:layout_margin="@dimen/layout_margin_extreme_large"
                 app:layout_constraintTop_toBottomOf="@id/ordersRecycler"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -171,7 +176,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </FrameLayout>
 </androidx.core.widget.NestedScrollView>
-
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 <androidx.cardview.widget.CardView
     android:id="@+id/toolbarLayout"
     android:layout_width="match_parent"

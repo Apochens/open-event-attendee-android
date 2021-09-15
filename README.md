@@ -1,51 +1,55 @@
 # Open Event Attendee App
-[![Build Status](https://travis-ci.org/fossasia/open-event-attendee-android.svg?branch=development)](https://travis-ci.org/fossasia/open-event-attendee-android?branch=development)
-[![Build Status](https://travis-ci.org/fossasia/open-event-attendee-android.svg?branch=master)](https://travis-ci.org/fossasia/open-event-attendee-android?branch=master)
+[![Build Status](https://img.shields.io/travis/fossasia/open-event-attendee-android/development.svg?label=development)](https://travis-ci.org/fossasia/open-event-attendee-android?branch=development)
+[![Build Status](https://img.shields.io/travis/fossasia/open-event-attendee-android/master.svg?label=master)](https://travis-ci.org/fossasia/open-event-attendee-android?branch=master)
 [![Join the chat at https://gitter.im/fossasia/open-event-android](https://badges.gitter.im/fossasia/open-event-android.svg)](https://gitter.im/fossasia/open-event-android?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Mailing List](https://img.shields.io/badge/Mailing%20List-FOSSASIA-blue.svg)](https://groups.google.com/forum/#!forum/open-event)
 [![Twitter Follow](https://img.shields.io/twitter/follow/eventyay.svg?style=social&label=Follow&maxAge=2592000?style=flat-square)](https://twitter.com/eventyay)
 
-An events app to discover events happening around the world using the Open Event Platform on Eventyay.com.
+An events app to discover events happening around the world using the Open Event Platform on [Eventyay](https://eventyay.com).
+
+Eventyay Attendee App provides following features for users:
+- All events by the organizers can be viewed
+- Functionality to filter out events by date, time, location and event name
+- Users can buy tickets and register as attendees for any event
+- Pay for their orders via PayPal and Stripe
+- All important event details such as location, date, and timing of the event can be viewed
+- Users can view all the tickets bought for an event with their status
+- Easy check-in using QR code for Tickets and see check-in timings
+- Users can view similar events
+- Users have the privilege to mark an event as favorite
 
 Application is available here:
 
 <a href='https://play.google.com/store/apps/details?id=com.eventyay.attendee'><img alt='Get it on Google Play' src='docs/images/ic_play_store.png' height="80"/></a>
 <a href='https://f-droid.org/en/packages/com.eventyay.attendee/'><img alt='Get it on F-Droid' src='docs/images/ic_fdroid.png' height="80"/></a>
 
-## Roadmap
-
-Planned features & enhancements are:
-
-
-
 ## Communication
 
-Please join our mailing list to discuss questions regarding the project: https://groups.google.com/forum/#!forum/open-event
+Please join our mailing list to discuss questions regarding the project [here](https://groups.google.com/forum/#!forum/open-event)
 
 Our chat channel is on gitter [here](https://gitter.im/fossasia/open-event-attendee-android)
 
 ## Screenshots
 <table>
         <tr>
-<td><img src = "fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_1.png"></td>
-<td><img src = "fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_2.png"></td>
-<td><img src = "fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_3.png"></td>
+<td><img src = "fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_1.jpg"></td>
+<td><img src = "fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_2.jpg"></td>
+<td><img src = "fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_3.jpg"></td>
         </tr>
         <tr>
-<td><img src = "fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_4.png"></td>
-<td><img src = "fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_5.png"></td>
-<td><img src = "fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_6.png"></td>
+<td><img src = "fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_4.jpg"></td>
+<td><img src = "fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_5.jpg"></td>
+<td><img src = "fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_6.jpg"></td>
         </tr>
         <tr>
-<td><img src = "fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_7.png"></td>
-<td><img src = "fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_8.png"></td>
-<td><img src = "fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_9.png"></td>
+<td><img src = "fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_8.jpg"></td>
+<td><img src = "fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot_9.jpg"></td>
         </tr>
 </table>        
 
 ## Development
 
-A native Android app using Kotlin for writing code.
+A native Android app using Kotlin for writing code and [Open event server](https://github.com/fossasia/open-event-server) for API.
 
 ### Libraries used and their documentation
 
@@ -59,6 +63,10 @@ A native Android app using Kotlin for writing code.
 - JSON API Converter [Docs](https://github.com/jasminb/jsonapi-converter)
 - OkHttp [Docs](http://square.github.io/okhttp/)
 - Room Persistence Library [Docs](https://developer.android.com/topic/libraries/architecture/room)
+- PayPal [Docs](https://github.com/paypal/PayPal-Android-SDK)
+- Navigation Architecture Component [Docs](https://developer.android.com/guide/navigation/navigation-getting-started)
+- Mapbox [Docs](https://docs.mapbox.com/)
+- Stetho [Docs](https://github.com/facebook/stetho)
 
 ### Project Conventions
 
@@ -109,13 +117,7 @@ Please help us follow the best practices to make it easy for the reviewer as wel
 * If you would like to work on an issue, drop in a comment at the issue. If it is already assigned to someone, but there is no sign of any work being done, please free to drop in a comment so that the issue can be assigned to you if the previous assignee has dropped it entirely.
 
 ## For Testers: Testing the App
-If you are a tester and want to test the app, you have two ways to do that:
-1. **Installing APK on your device:** You can get debug APK as well as Release APK in apk branch of the repository. After each PR merge, both the APKs are automatically updated. So, just download the APK you want and install it on your device. The APKs will always be the latest one.
-
-## Open Event Attendee Android Suggestions
-
-- Suggestion form link: [Form](https://docs.google.com/forms/d/e/1FAIpQLSd7Y1T1xoXeYaAG_b6Tu1YYK-jZssoC5ltmQbkUX0kmDZaKYw/viewform)
-- Suggestion responses link: [Sheet](https://docs.google.com/spreadsheets/d/1SzR75MBEVrTY1sDM3KAMm9wltiulDAp0QT5hv9eJkKM/edit#gid=1676755229)
+**Installing APK on your device:** You can get debug APK as well as Release APK in apk branch of the repository. After each PR merge, both the APKs are automatically updated. So, just download the APK you want and install it on your device. The APKs will always be the latest one.
 
 ## License
 

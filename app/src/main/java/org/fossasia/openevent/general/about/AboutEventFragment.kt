@@ -1,6 +1,7 @@
 package org.fossasia.openevent.general.about
 
 import android.os.Bundle
+import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -11,21 +12,21 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.appbar.AppBarLayout
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.fragment_about_event.view.appBar
-import kotlinx.android.synthetic.main.fragment_about_event.view.progressBarAbout
 import kotlinx.android.synthetic.main.fragment_about_event.view.aboutEventContent
 import kotlinx.android.synthetic.main.fragment_about_event.view.aboutEventDetails
-import kotlinx.android.synthetic.main.fragment_about_event.view.eventName
-import kotlinx.android.synthetic.main.fragment_about_event.view.detailsHeader
 import kotlinx.android.synthetic.main.fragment_about_event.view.aboutEventImage
+import kotlinx.android.synthetic.main.fragment_about_event.view.appBar
+import kotlinx.android.synthetic.main.fragment_about_event.view.detailsHeader
+import kotlinx.android.synthetic.main.fragment_about_event.view.eventName
+import kotlinx.android.synthetic.main.fragment_about_event.view.progressBarAbout
 import org.fossasia.openevent.general.R
 import org.fossasia.openevent.general.event.Event
 import org.fossasia.openevent.general.event.EventUtils
+import org.fossasia.openevent.general.utils.Utils.setToolbar
 import org.fossasia.openevent.general.utils.extensions.nonNull
 import org.fossasia.openevent.general.utils.stripHtml
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.fossasia.openevent.general.utils.Utils.setToolbar
 import org.jetbrains.anko.design.snackbar
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class AboutEventFragment : Fragment() {
     private lateinit var rootView: View
@@ -64,6 +65,7 @@ class AboutEventFragment : Fragment() {
 
     private fun loadEvent(event: Event) {
         eventExtra = event
+        rootView.aboutEventContent.movementMethod = LinkMovementMethod.getInstance()
         rootView.aboutEventContent.text = event.description?.stripHtml()
         val startsAt = EventUtils.getEventDateTime(event.startsAt, event.timezone)
         val endsAt = EventUtils.getEventDateTime(event.endsAt, event.timezone)

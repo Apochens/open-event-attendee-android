@@ -2,11 +2,9 @@ package org.fossasia.openevent.general.auth
 
 import android.Manifest
 import android.app.Activity
-import androidx.appcompat.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import org.fossasia.openevent.general.utils.ImageUtils.decodeBitmap
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Base64
@@ -14,55 +12,54 @@ import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.textfield.TextInputEditText
+import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.fragment_edit_profile.view.updateButton
-import kotlinx.android.synthetic.main.fragment_edit_profile.view.toolbar
-import kotlinx.android.synthetic.main.fragment_edit_profile.view.firstName
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
+import kotlinx.android.synthetic.main.dialog_edit_profile_image.view.editImage
+import kotlinx.android.synthetic.main.dialog_edit_profile_image.view.removeImage
+import kotlinx.android.synthetic.main.dialog_edit_profile_image.view.replaceImage
+import kotlinx.android.synthetic.main.dialog_edit_profile_image.view.takeImage
 import kotlinx.android.synthetic.main.fragment_edit_profile.view.details
 import kotlinx.android.synthetic.main.fragment_edit_profile.view.facebook
-import kotlinx.android.synthetic.main.fragment_edit_profile.view.twitter
+import kotlinx.android.synthetic.main.fragment_edit_profile.view.firstName
 import kotlinx.android.synthetic.main.fragment_edit_profile.view.instagram
-import kotlinx.android.synthetic.main.fragment_edit_profile.view.phone
-import com.squareup.picasso.MemoryPolicy
-import kotlinx.android.synthetic.main.dialog_edit_profile_image.view.editImage
-import kotlinx.android.synthetic.main.dialog_edit_profile_image.view.takeImage
-import kotlinx.android.synthetic.main.dialog_edit_profile_image.view.replaceImage
-import kotlinx.android.synthetic.main.dialog_edit_profile_image.view.removeImage
 import kotlinx.android.synthetic.main.fragment_edit_profile.view.lastName
+import kotlinx.android.synthetic.main.fragment_edit_profile.view.phone
 import kotlinx.android.synthetic.main.fragment_edit_profile.view.profilePhoto
-import kotlinx.android.synthetic.main.fragment_edit_profile.view.progressBar
 import kotlinx.android.synthetic.main.fragment_edit_profile.view.profilePhotoFab
-import kotlinx.android.synthetic.main.fragment_edit_profile.view.firstNameLayout
-import kotlinx.android.synthetic.main.fragment_edit_profile.view.lastNameLayout
+import kotlinx.android.synthetic.main.fragment_edit_profile.view.toolbar
+import kotlinx.android.synthetic.main.fragment_edit_profile.view.twitter
+import kotlinx.android.synthetic.main.fragment_edit_profile.view.updateButton
 import org.fossasia.openevent.general.CircleTransform
+import org.fossasia.openevent.general.ComplexBackPressFragment
 import org.fossasia.openevent.general.MainActivity
 import org.fossasia.openevent.general.R
 import org.fossasia.openevent.general.RotateBitmap
-import org.fossasia.openevent.general.ComplexBackPressFragment
+import org.fossasia.openevent.general.utils.ImageUtils.decodeBitmap
 import org.fossasia.openevent.general.utils.Utils.hideSoftKeyboard
+import org.fossasia.openevent.general.utils.Utils.progressDialog
 import org.fossasia.openevent.general.utils.Utils.requireDrawable
+import org.fossasia.openevent.general.utils.Utils.setToolbar
+import org.fossasia.openevent.general.utils.Utils.show
+import org.fossasia.openevent.general.utils.emptyToNull
 import org.fossasia.openevent.general.utils.extensions.nonNull
 import org.fossasia.openevent.general.utils.nullToEmpty
+import org.jetbrains.anko.design.snackbar
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.FileNotFoundException
-import org.fossasia.openevent.general.utils.Utils.setToolbar
-import org.fossasia.openevent.general.utils.emptyToNull
-import org.fossasia.openevent.general.utils.setRequired
-import org.jetbrains.anko.design.snackbar
 
 class EditProfileFragment : Fragment(), ComplexBackPressFragment {
 
@@ -83,7 +80,6 @@ class EditProfileFragment : Fragment(), ComplexBackPressFragment {
     private lateinit var userFirstName: String
     private lateinit var userLastName: String
     private lateinit var userDetails: String
-    private lateinit var userAvatar: String
     private lateinit var userPhone: String
     private lateinit var userFacebook: String
     private lateinit var userTwitter: String
@@ -110,10 +106,11 @@ class EditProfileFragment : Fragment(), ComplexBackPressFragment {
         val currentUser = editProfileViewModel.user.value
         if (currentUser == null) profileViewModel.getProfile() else loadUserUI(currentUser)
 
+        val progress = progressDialog(context)
         editProfileViewModel.progress
             .nonNull()
             .observe(viewLifecycleOwner, Observer {
-                rootView.progressBar.isVisible = it
+                progress.show(it)
             })
 
         editProfileViewModel.getUpdatedTempFile()
@@ -157,9 +154,6 @@ class EditProfileFragment : Fragment(), ComplexBackPressFragment {
             showEditPhotoDialog()
         }
 
-        rootView.firstNameLayout.setRequired()
-        rootView.lastNameLayout.setRequired()
-
         return rootView
     }
 
@@ -188,14 +182,6 @@ class EditProfileFragment : Fragment(), ComplexBackPressFragment {
 
     private fun isValidInput(): Boolean {
         var valid = true
-        if (rootView.firstName.text.isNullOrBlank()) {
-            rootView.firstName.error = getString(R.string.empty_field_error_message)
-            valid = false
-        }
-        if (rootView.lastName.text.isNullOrBlank()) {
-            rootView.lastName.error = getString(R.string.empty_field_error_message)
-            valid = false
-        }
         if (!rootView.instagram.text.isNullOrEmpty() && !Patterns.WEB_URL.matcher(rootView.instagram.text).matches()) {
             rootView.instagram.error = getString(R.string.invalid_url_message)
             valid = false
@@ -215,17 +201,18 @@ class EditProfileFragment : Fragment(), ComplexBackPressFragment {
         userFirstName = user.firstName.nullToEmpty()
         userLastName = user.lastName.nullToEmpty()
         userDetails = user.details.nullToEmpty()
-        userAvatar = user.avatarUrl.nullToEmpty()
+        if (editProfileViewModel.userAvatar == null)
+            editProfileViewModel.userAvatar = user.avatarUrl.nullToEmpty()
         userPhone = user.contact.nullToEmpty()
         userFacebook = user.facebookUrl.nullToEmpty()
         userTwitter = user.twitterUrl.nullToEmpty()
         userInstagram = user.instagramUrl.nullToEmpty()
 
         if (safeArgs.croppedImage.isEmpty()) {
-            if (userAvatar.isNotEmpty() && !editProfileViewModel.avatarUpdated) {
+            if (!editProfileViewModel.userAvatar.isNullOrEmpty() && !editProfileViewModel.avatarUpdated) {
                 val drawable = requireDrawable(requireContext(), R.drawable.ic_account_circle_grey)
                 Picasso.get()
-                    .load(userAvatar)
+                    .load(editProfileViewModel.userAvatar)
                     .placeholder(drawable)
                     .transform(CircleTransform())
                     .into(rootView.profilePhoto)
@@ -257,10 +244,11 @@ class EditProfileFragment : Fragment(), ComplexBackPressFragment {
 
         editImageView.editImage.setOnClickListener {
 
-            if (!userAvatar.isNullOrEmpty()) {
-                if (this::userAvatar.isInitialized) {
+            if (!editProfileViewModel.userAvatar.isNullOrEmpty()) {
+                val currentUserAvatar = editProfileViewModel.userAvatar
+                if (currentUserAvatar != null) {
                     findNavController(rootView).navigate(
-                        EditProfileFragmentDirections.actionEditProfileToCropImage(userAvatar))
+                        EditProfileFragmentDirections.actionEditProfileToCropImage(currentUserAvatar))
                 } else {
                     rootView.snackbar(getString(R.string.error_editting_image_message))
                 }
@@ -325,6 +313,7 @@ class EditProfileFragment : Fragment(), ComplexBackPressFragment {
             fos.close()
 
             editProfileViewModel.setUpdatedTempFile(tempAvatar)
+            editProfileViewModel.userAvatar = tempAvatar.toURI().toString()
         } catch (e: IOException) {
             e.printStackTrace()
         }

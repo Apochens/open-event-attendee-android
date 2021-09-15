@@ -5,9 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.disposables.CompositeDisposable
-import org.fossasia.openevent.general.R
 import io.reactivex.rxkotlin.plusAssign
-import org.fossasia.openevent.general.utils.extensions.withDefaultSchedulers
+import org.fossasia.openevent.general.R
 import org.fossasia.openevent.general.attendees.forms.CustomForm
 import org.fossasia.openevent.general.auth.AuthHolder
 import org.fossasia.openevent.general.auth.AuthService
@@ -24,7 +23,9 @@ import org.fossasia.openevent.general.order.OrderService
 import org.fossasia.openevent.general.settings.SettingsService
 import org.fossasia.openevent.general.ticket.Ticket
 import org.fossasia.openevent.general.ticket.TicketService
+import org.fossasia.openevent.general.utils.ErrorUtils
 import org.fossasia.openevent.general.utils.HttpErrors
+import org.fossasia.openevent.general.utils.extensions.withDefaultSchedulers
 import retrofit2.HttpException
 import timber.log.Timber
 
@@ -39,6 +40,9 @@ const val PAYMENT_MODE_ONSITE = "onsite"
 const val PAYMENT_MODE_CHEQUE = "cheque"
 const val PAYMENT_MODE_PAYPAL = "paypal"
 const val PAYMENT_MODE_STRIPE = "stripe"
+private const val ERRORS = "errors"
+private const val DETAIL = "detail"
+private const val UNVERIFIED_USER = "unverified-user"
 private const val ORDER_EXPIRY_TIME = 15
 
 class AttendeeViewModel(
@@ -59,7 +63,7 @@ class AttendeeViewModel(
     private val mutableTicketSoldOut = MutableLiveData<Boolean>()
     val ticketSoldOut: LiveData<Boolean> = mutableTicketSoldOut
     private val mutableMessage = SingleLiveEvent<String>()
-    val message: LiveData<String> = mutableMessage
+    val message: SingleLiveEvent<String> = mutableMessage
     private val mutableEvent = MutableLiveData<Event>()
     val event: LiveData<Event> = mutableEvent
     private val mutableUser = MutableLiveData<User>()
@@ -76,6 +80,10 @@ class AttendeeViewModel(
     val stripeOrderMade: LiveData<Boolean> = mutableStripeOrderMade
     private val mutableOrderExpiryTime = MutableLiveData<Int>()
     val orderExpiryTime: LiveData<Int> = mutableOrderExpiryTime
+    private val mutableRedirectToProfile = SingleLiveEvent<Boolean>()
+    val redirectToProfile = mutableRedirectToProfile
+    private val mutablePaypalOrderMade = MutableLiveData<Boolean>()
+    val paypalOrderMade: LiveData<Boolean> = mutablePaypalOrderMade
 
     val attendees = ArrayList<Attendee>()
     private val attendeesForOrder = ArrayList<Attendee>()
@@ -87,6 +95,7 @@ class AttendeeViewModel(
     private var addressForOrder: String = ""
     private var cityForOrder: String = ""
     private var postalCodeForOrder: String = ""
+    private var stateForOrder: String = ""
 
     private var createAttendeeIterations = 0
     var orderIdentifier: String? = null
@@ -96,7 +105,7 @@ class AttendeeViewModel(
     // Retained information
     var countryPosition: Int = -1
     var ticketIdAndQty: List<Triple<Int, Int, Float>>? = null
-    var selectedPaymentOption: Int = -1
+    var selectedPaymentMode: String = ""
     var singleTicket = false
     var monthSelectedPosition: Int = 0
     var yearSelectedPosition: Int = 0
@@ -162,6 +171,11 @@ class AttendeeViewModel(
                 mutablePendingOrder.value = it
                 orderIdentifier = it.identifier.toString()
             }, {
+                if (it is HttpException) {
+                    if (ErrorUtils.getErrorDetails(it).code == UNVERIFIED_USER) {
+                        mutableRedirectToProfile.value = true
+                    }
+                }
                 Timber.e(it, "Fail on creating pending order")
             })
     }
@@ -200,6 +214,7 @@ class AttendeeViewModel(
         address: String,
         city: String,
         postalCode: String,
+        state: String,
         paymentMode: String
     ) {
         attendeesForOrder.clear()
@@ -209,6 +224,7 @@ class AttendeeViewModel(
         addressForOrder = address
         cityForOrder = city
         postalCodeForOrder = postalCode
+        stateForOrder = state
         paymentModeForOrder = paymentMode
         var isAllDetailsFilled = true
         createAttendeeIterations = 0
@@ -259,15 +275,15 @@ class AttendeeViewModel(
             mutableMessage.value = resource.getString(R.string.order_fail_message)
             return
         }
-        val attendeeList = attendeesForOrder.map { AttendeeId(it.id) }.toList()
         val amount: Float = totalAmount.value ?: 0F
         if (amount <= 0) {
             paymentModeForOrder = PAYMENT_MODE_FREE
         }
-        order = order.copy(attendees = attendeeList, paymentMode = paymentModeForOrder, amount = amount)
+        order = order.copy(attendees = attendeesForOrder, paymentMode = paymentModeForOrder, amount = amount)
         if (billingEnabled) {
             order = order.copy(isBillingEnabled = true, company = companyForOrder, taxBusinessInfo = taxIdForOrder,
-                address = addressForOrder, city = cityForOrder, zipcode = postalCodeForOrder, country = countryForOrder)
+                address = addressForOrder, city = cityForOrder, zipcode = postalCodeForOrder, country = countryForOrder,
+                state = stateForOrder)
         }
         compositeDisposable += orderService.placeOrder(order)
             .withDefaultSchedulers()
@@ -286,6 +302,11 @@ class AttendeeViewModel(
                     PAYMENT_MODE_STRIPE -> {
                         mutableStripeOrderMade.value = true
                     }
+                    PAYMENT_MODE_PAYPAL -> {
+                        mutablePendingOrder.value = it
+                        mutablePaypalOrderMade.value = true
+                        mutableProgress.value = false
+                    }
                     else -> mutableMessage.value = resource.getString(R.string.order_success_message)
                 }
             }, {
@@ -294,6 +315,28 @@ class AttendeeViewModel(
                 mutableProgress.value = false
                 deleteAttendees(order.attendees)
             })
+    }
+
+    fun sendPaypalConfirm(paymentId: String) {
+        pendingOrder.value?.let { order ->
+            compositeDisposable += orderService.verifyPaypalPayment(order.identifier.toString(), paymentId)
+                .withDefaultSchedulers()
+                .doOnSubscribe {
+                    mutableProgress.value = true
+                }.subscribe({
+                    if (it.status) {
+                        confirmOrder = ConfirmOrder(order.id.toString(), ORDER_STATUS_COMPLETED)
+                        confirmOrderStatus(order.identifier.toString(), confirmOrder)
+                    } else {
+                        mutableMessage.value = it.error
+                        mutableProgress.value = false
+                    }
+                }, {
+                    Timber.e(it, "Error verifying paypal payment")
+                    mutableMessage.value = resource.getString(R.string.error_making_paypal_payment_message)
+                    mutableProgress.value = false
+                })
+        }
     }
 
     private fun confirmOrderStatus(identifier: String, order: ConfirmOrder) {
@@ -325,12 +368,12 @@ class AttendeeViewModel(
             })
     }
 
-    private fun deleteAttendees(attendeeIds: List<AttendeeId>?) {
-        attendeeIds?.forEach { attendeeId ->
-            compositeDisposable += attendeeService.deleteAttendee(attendeeId.id)
+    private fun deleteAttendees(attendees: List<Attendee>?) {
+        attendees?.forEach { attendee ->
+            compositeDisposable += attendeeService.deleteAttendee(attendee.id)
                 .withDefaultSchedulers()
                 .subscribe({
-                    Timber.d("Deleted attendee $attendeeId.id")
+                    Timber.d("Deleted attendee ${attendee.id}")
                 }, {
                     Timber.d("Failed to delete attendee $it.id")
                 })
@@ -354,7 +397,7 @@ class AttendeeViewModel(
                     Timber.d("Failed charging the user")
                 }
             }, {
-                mutableMessage.value = resource.getString(R.string.payment_not_complete_message)
+                mutableMessage.value = ErrorUtils.getErrorDetails(it).detail
                 Timber.d(it, "Failed charging the user")
             })
     }

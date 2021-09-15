@@ -5,19 +5,17 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.CalendarContract
 import android.view.View
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.widget.FrameLayout
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import java.lang.StringBuilder
 import kotlinx.android.synthetic.main.item_card_order_details.view.calendar
+import kotlinx.android.synthetic.main.item_card_order_details.view.checkedInLayout
+import kotlinx.android.synthetic.main.item_card_order_details.view.downloadButton
 import kotlinx.android.synthetic.main.item_card_order_details.view.eventDetails
 import kotlinx.android.synthetic.main.item_card_order_details.view.map
-import kotlinx.android.synthetic.main.item_card_order_details.view.mainLayout
-import kotlinx.android.synthetic.main.item_card_order_details.view.qrCodeView
-import kotlinx.android.synthetic.main.item_card_order_details.view.downloadButton
-import kotlinx.android.synthetic.main.item_card_order_details.view.checkedInLayout
-import kotlinx.android.synthetic.main.item_card_order_details.view.notCheckedInLayout
 import kotlinx.android.synthetic.main.item_card_order_details.view.notAvailableTextView
+import kotlinx.android.synthetic.main.item_card_order_details.view.notCheckedInLayout
+import kotlinx.android.synthetic.main.item_card_order_details.view.qrCodeView
 import org.fossasia.openevent.general.R
 import org.fossasia.openevent.general.attendees.Attendee
 import org.fossasia.openevent.general.databinding.ItemCardOrderDetailsBinding
@@ -26,7 +24,6 @@ import org.fossasia.openevent.general.event.EventUtils
 import org.fossasia.openevent.general.event.EventUtils.loadMapUrl
 import org.fossasia.openevent.general.utils.stripHtml
 import org.jetbrains.anko.browse
-import java.lang.StringBuilder
 
 class OrderDetailsViewHolder(private val binding: ItemCardOrderDetailsBinding) : RecyclerView.ViewHolder(binding.root) {
     private val qrCode = QrCode()
@@ -57,18 +54,6 @@ class OrderDetailsViewHolder(private val binding: ItemCardOrderDetailsBinding) :
             identifier = ticketIdentifier
         }
 
-        if (position == 0) {
-            val params: FrameLayout.LayoutParams =
-                FrameLayout.LayoutParams(resources.getDimension(R.dimen.ticket_width).toInt(), MATCH_PARENT)
-            params.leftMargin = resources.getDimension(R.dimen.layout_margin_large).toInt()
-            itemView.mainLayout.layoutParams = params
-        } else if (position + 1 == count) {
-            val params: FrameLayout.LayoutParams =
-                FrameLayout.LayoutParams(resources.getDimension(R.dimen.ticket_width).toInt(), MATCH_PARENT)
-            params.rightMargin = resources.getDimension(R.dimen.layout_margin_large).toInt()
-            itemView.mainLayout.layoutParams = params
-        }
-
         if (attendee.isCheckedIn != null) {
             itemView.checkedInLayout.isVisible = attendee.isCheckedIn
             itemView.notCheckedInLayout.isVisible = !attendee.isCheckedIn
@@ -81,7 +66,7 @@ class OrderDetailsViewHolder(private val binding: ItemCardOrderDetailsBinding) :
             val checkInTime = attendee.checkinTimes.split(",").toTypedArray()
             val times = StringBuilder()
             for (i in checkInTime.indices) {
-                val dateTime = EventUtils.getEventDateTime(checkInTime[i], null)
+                val dateTime = EventUtils.getEventDateTime(checkInTime[i])
                 times.append(EventUtils.getFormattedDate(dateTime) + "\n")
                 times.append(EventUtils.getFormattedTime(dateTime) + "\n\n")
             }

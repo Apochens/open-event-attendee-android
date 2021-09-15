@@ -25,50 +25,49 @@ import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.content_event.view.alreadyRegisteredLayout
 import kotlinx.android.synthetic.main.content_event.view.eventDateDetailsFirst
 import kotlinx.android.synthetic.main.content_event.view.eventDateDetailsSecond
 import kotlinx.android.synthetic.main.content_event.view.eventDescription
+import kotlinx.android.synthetic.main.content_event.view.eventImage
 import kotlinx.android.synthetic.main.content_event.view.eventLocationLinearLayout
 import kotlinx.android.synthetic.main.content_event.view.eventName
 import kotlinx.android.synthetic.main.content_event.view.eventOrganiserDescription
 import kotlinx.android.synthetic.main.content_event.view.eventTimingLinearLayout
-import kotlinx.android.synthetic.main.content_event.view.imageMap
-import kotlinx.android.synthetic.main.content_event.view.eventImage
 import kotlinx.android.synthetic.main.content_event.view.feedbackBtn
-import kotlinx.android.synthetic.main.content_event.view.feedbackRv
 import kotlinx.android.synthetic.main.content_event.view.feedbackProgress
+import kotlinx.android.synthetic.main.content_event.view.feedbackRv
+import kotlinx.android.synthetic.main.content_event.view.imageMap
 import kotlinx.android.synthetic.main.content_event.view.nestedContentEventScroll
 import kotlinx.android.synthetic.main.content_event.view.noFeedBackTv
+import kotlinx.android.synthetic.main.content_event.view.priceRangeTextView
 import kotlinx.android.synthetic.main.content_event.view.seeFeedbackTextView
 import kotlinx.android.synthetic.main.content_event.view.seeMore
 import kotlinx.android.synthetic.main.content_event.view.seeMoreOrganizer
 import kotlinx.android.synthetic.main.content_event.view.sessionContainer
 import kotlinx.android.synthetic.main.content_event.view.sessionsRv
 import kotlinx.android.synthetic.main.content_event.view.shimmerSimilarEvents
+import kotlinx.android.synthetic.main.content_event.view.similarEventsContainer
+import kotlinx.android.synthetic.main.content_event.view.similarEventsRecycler
+import kotlinx.android.synthetic.main.content_event.view.socialLinkContainer
+import kotlinx.android.synthetic.main.content_event.view.socialLinksRecycler
 import kotlinx.android.synthetic.main.content_event.view.speakerRv
 import kotlinx.android.synthetic.main.content_event.view.speakersContainer
 import kotlinx.android.synthetic.main.content_event.view.sponsorsRecyclerView
 import kotlinx.android.synthetic.main.content_event.view.sponsorsSummaryContainer
-import kotlinx.android.synthetic.main.content_event.view.socialLinksRecycler
-import kotlinx.android.synthetic.main.content_event.view.socialLinkContainer
-import kotlinx.android.synthetic.main.content_event.view.similarEventsRecycler
-import kotlinx.android.synthetic.main.content_event.view.similarEventsContainer
-import kotlinx.android.synthetic.main.content_event.view.alreadyRegisteredLayout
 import kotlinx.android.synthetic.main.content_event.view.ticketPriceLinearLayout
-import kotlinx.android.synthetic.main.content_event.view.priceRangeTextView
-import kotlinx.android.synthetic.main.fragment_event.view.buttonTickets
-import kotlinx.android.synthetic.main.fragment_event.view.eventErrorCard
-import kotlinx.android.synthetic.main.fragment_event.view.container
 import kotlinx.android.synthetic.main.content_fetching_event_error.view.retry
 import kotlinx.android.synthetic.main.dialog_feedback.view.feedback
 import kotlinx.android.synthetic.main.dialog_feedback.view.feedbackTextInputLayout
 import kotlinx.android.synthetic.main.dialog_feedback.view.feedbackrating
-import org.fossasia.openevent.general.utils.EVENT_IDENTIFIER
+import kotlinx.android.synthetic.main.fragment_event.view.buttonTickets
+import kotlinx.android.synthetic.main.fragment_event.view.container
+import kotlinx.android.synthetic.main.fragment_event.view.eventErrorCard
 import org.fossasia.openevent.general.R
-import org.fossasia.openevent.general.common.SessionClickListener
-import org.fossasia.openevent.general.common.SpeakerClickListener
 import org.fossasia.openevent.general.common.EventClickListener
 import org.fossasia.openevent.general.common.FavoriteFabClickListener
+import org.fossasia.openevent.general.common.SessionClickListener
+import org.fossasia.openevent.general.common.SpeakerClickListener
 import org.fossasia.openevent.general.databinding.FragmentEventBinding
 import org.fossasia.openevent.general.event.EventUtils.loadMapUrl
 import org.fossasia.openevent.general.event.similarevent.SimilarEventsListAdapter
@@ -79,19 +78,19 @@ import org.fossasia.openevent.general.social.SocialLinksRecyclerAdapter
 import org.fossasia.openevent.general.speakers.SpeakerRecyclerAdapter
 import org.fossasia.openevent.general.sponsor.SponsorClickListener
 import org.fossasia.openevent.general.sponsor.SponsorRecyclerAdapter
+import org.fossasia.openevent.general.utils.EVENT_IDENTIFIER
 import org.fossasia.openevent.general.utils.Utils
+import org.fossasia.openevent.general.utils.Utils.progressDialog
+import org.fossasia.openevent.general.utils.Utils.setToolbar
+import org.fossasia.openevent.general.utils.Utils.show
 import org.fossasia.openevent.general.utils.extensions.nonNull
+import org.fossasia.openevent.general.utils.extensions.setSharedElementEnterTransition
 import org.fossasia.openevent.general.utils.nullToEmpty
 import org.fossasia.openevent.general.utils.stripHtml
-import org.fossasia.openevent.general.utils.Utils.progressDialog
-import org.fossasia.openevent.general.utils.Utils.show
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import timber.log.Timber
-import java.util.Currency
-import org.fossasia.openevent.general.utils.Utils.setToolbar
-import org.fossasia.openevent.general.utils.extensions.setSharedElementEnterTransition
 import org.jetbrains.anko.design.longSnackbar
 import org.jetbrains.anko.design.snackbar
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import timber.log.Timber
 
 const val EVENT_DETAIL_FRAGMENT = "eventDetailFragment"
 
@@ -104,6 +103,7 @@ class EventDetailsFragment : Fragment() {
     private val sessionsAdapter = SessionRecyclerAdapter()
     private val socialLinkAdapter = SocialLinksRecyclerAdapter()
     private val similarEventsAdapter = SimilarEventsListAdapter()
+    private var hasSimilarEvents: Boolean = false
 
     private lateinit var rootView: View
     private lateinit var binding: FragmentEventBinding
@@ -135,7 +135,13 @@ class EventDetailsFragment : Fragment() {
         setupSimilarEvents()
 
         rootView.buttonTickets.setOnClickListener {
-            loadTicketFragment()
+            val ticketUrl = currentEvent?.ticketUrl
+            if (!ticketUrl.isNullOrEmpty() &&
+                Uri.parse(ticketUrl).host != getString(R.string.FRONTEND_HOST)) {
+                Utils.openUrl(requireContext(), ticketUrl)
+            } else {
+                loadTicketFragment()
+            }
         }
 
         eventViewModel.popMessage
@@ -187,7 +193,7 @@ class EventDetailsFragment : Fragment() {
     private fun setupEventOverview() {
         eventViewModel.event
             .nonNull()
-            .observe(this, Observer {
+            .observe(viewLifecycleOwner, Observer {
                 currentEvent = it
                 loadEvent(it)
                 if (eventViewModel.similarEvents.value == null) {
@@ -267,7 +273,7 @@ class EventDetailsFragment : Fragment() {
             .nonNull()
             .observe(viewLifecycleOwner, Observer {
                 rootView.feedbackProgress.isVisible = it
-                rootView.feedbackBtn.isEnabled = !it
+                rootView.feedbackBtn.isVisible = !it
             })
 
         eventViewModel.eventFeedback.observe(viewLifecycleOwner, Observer {
@@ -286,7 +292,10 @@ class EventDetailsFragment : Fragment() {
         eventViewModel.submittedFeedback
             .nonNull()
             .observe(viewLifecycleOwner, Observer {
-                feedbackAdapter.add(it)
+                if (feedbackAdapter.itemCount < LIMITED_FEEDBACK_NUMBER)
+                    feedbackAdapter.add(it)
+                else
+                    rootView.seeFeedbackTextView.isVisible = true
                 rootView.feedbackRv.isVisible = true
                 rootView.noFeedBackTv.isVisible = false
             })
@@ -375,7 +384,10 @@ class EventDetailsFragment : Fragment() {
                     rootView.similarEventsContainer.isVisible = true
                 } else {
                     rootView.shimmerSimilarEvents.stopShimmer()
-                    rootView.similarEventsContainer.isVisible = similarEventsAdapter.currentList?.isEmpty() ?: true
+                    if (!similarEventsAdapter.currentList.isNullOrEmpty()) {
+                        hasSimilarEvents = true
+                    }
+                    rootView.similarEventsContainer.isVisible = hasSimilarEvents
                 }
             })
 
@@ -406,14 +418,9 @@ class EventDetailsFragment : Fragment() {
         // Organizer Section
         if (!event.ownerName.isNullOrEmpty()) {
             val organizerDescriptionListener = View.OnClickListener {
-                if (rootView.seeMoreOrganizer.text == getString(R.string.see_more)) {
-                    rootView.seeMoreOrganizer.text = getString(R.string.see_less)
-                    rootView.eventOrganiserDescription.minLines = 0
-                    rootView.eventOrganiserDescription.maxLines = Int.MAX_VALUE
-                } else {
-                    rootView.seeMoreOrganizer.text = getString(R.string.see_more)
-                    rootView.eventOrganiserDescription.setLines(3)
-                }
+                rootView.eventOrganiserDescription.toggle()
+                rootView.seeMoreOrganizer.text = if (rootView.eventOrganiserDescription.isExpanded)
+                    getString(R.string.see_less) else getString(R.string.see_more)
             }
 
             rootView.eventOrganiserDescription.post {
@@ -450,8 +457,7 @@ class EventDetailsFragment : Fragment() {
         // load location to map
         val mapClickListener = View.OnClickListener { startMap(event) }
 
-        val locationNameIsEmpty = event.locationName.isNullOrEmpty()
-        if (!locationNameIsEmpty) {
+        if (!event.locationName.isNullOrEmpty() && hasCoordinates(event)) {
             rootView.imageMap.setOnClickListener(mapClickListener)
             rootView.eventLocationLinearLayout.setOnClickListener(mapClickListener)
 
@@ -460,6 +466,8 @@ class EventDetailsFragment : Fragment() {
                     .placeholder(R.drawable.ic_map_black)
                     .error(R.drawable.ic_map_black)
                     .into(rootView.imageMap)
+        } else {
+            rootView.imageMap.isVisible = false
         }
 
         // Date and Time section
@@ -471,11 +479,15 @@ class EventDetailsFragment : Fragment() {
         rootView.eventTimingLinearLayout.setOnClickListener(dateClickListener)
     }
 
+    private fun hasCoordinates(event: Event): Boolean {
+        return event.longitude != null && event.longitude != 0.00 && event.latitude != null && event.latitude != 0.00
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         eventViewModel.connection
             .nonNull()
-            .observe(this, Observer { isConnected ->
+            .observe(viewLifecycleOwner, Observer { isConnected ->
                 if (isConnected) {
                     val currentFeedback = eventViewModel.eventFeedback.value
                     if (currentFeedback == null) {
@@ -678,7 +690,7 @@ class EventDetailsFragment : Fragment() {
     }
 
     private fun loadTicketFragment() {
-        val currency = Currency.getInstance(currentEvent?.paymentCurrency ?: "USD").symbol
+        val currency = currentEvent?.paymentCurrency ?: "USD"
         currentEvent?.let {
             findNavController(rootView).navigate(EventDetailsFragmentDirections
                 .actionEventDetailsToTickets(it.id, currency))

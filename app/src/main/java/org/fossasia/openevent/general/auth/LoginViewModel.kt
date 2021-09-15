@@ -5,13 +5,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
-import org.fossasia.openevent.general.R
 import io.reactivex.rxkotlin.plusAssign
-import org.fossasia.openevent.general.utils.extensions.withDefaultSchedulers
+import org.fossasia.openevent.general.R
 import org.fossasia.openevent.general.common.SingleLiveEvent
 import org.fossasia.openevent.general.data.Network
 import org.fossasia.openevent.general.data.Resource
 import org.fossasia.openevent.general.event.EventService
+import org.fossasia.openevent.general.utils.extensions.withDefaultSchedulers
+import retrofit2.HttpException
 import timber.log.Timber
 
 class LoginViewModel(
@@ -28,17 +29,19 @@ class LoginViewModel(
     private val mutableUser = MutableLiveData<User>()
     val user: LiveData<User> = mutableUser
     private val mutableError = SingleLiveEvent<String>()
-    val error: LiveData<String> = mutableError
+    val error: SingleLiveEvent<String> = mutableError
     private val mutableShowNoInternetDialog = MutableLiveData<Boolean>()
     val showNoInternetDialog: LiveData<Boolean> = mutableShowNoInternetDialog
-    private val mutableRequestTokenSuccess = MutableLiveData<Boolean>()
-    val requestTokenSuccess: LiveData<Boolean> = mutableRequestTokenSuccess
+    private val mutableRequestTokenSuccess = MutableLiveData<LinkResetResponse>()
+    val requestTokenSuccess: LiveData<LinkResetResponse> = mutableRequestTokenSuccess
     private val mutableLoggedIn = SingleLiveEvent<Boolean>()
     var loggedIn: LiveData<Boolean> = mutableLoggedIn
     private val mutableValidPassword = MutableLiveData<Boolean>()
     val validPassword: LiveData<Boolean> = mutableValidPassword
 
     fun isLoggedIn() = authService.isLoggedIn()
+
+    data class LinkResetResponse(val status: Boolean, val message: String?)
 
     fun login(email: String, password: String) {
         if (!isConnected()) return
@@ -88,18 +91,22 @@ class LoginViewModel(
             }.doFinally {
                 mutableProgress.value = false
             }.subscribe({
-                mutableRequestTokenSuccess.value = verifyMessage(it.message)
+                mutableRequestTokenSuccess.value = LinkResetResponse(true, it.message)
             }, {
-                mutableRequestTokenSuccess.value = verifyMessage(it.message.toString())
-                mutableError.value = resource.getString(R.string.email_not_in_server_message)
+                mutableRequestTokenSuccess.value = LinkResetResponse(false, getErrorMessage(it))
+                mutableError.value = getErrorMessage(it)
             })
     }
 
-    private fun verifyMessage(message: String): Boolean {
-        if (message == resource.getString(R.string.email_sent)) {
-            return true
+    private fun getErrorMessage(error: Throwable): String? {
+        return if (error is HttpException) {
+            when (error.code()) {
+                429 -> resource.getString(R.string.reset_mail_limit_message)
+                else -> error.message()
+            }
+        } else {
+            resource.getString(R.string.something_went_wrong_message)
         }
-        return false
     }
 
     fun fetchProfile() {

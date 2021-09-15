@@ -11,6 +11,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
+import java.util.Date
 import org.fossasia.openevent.general.R
 import org.fossasia.openevent.general.auth.AuthHolder
 import org.fossasia.openevent.general.common.SingleLiveEvent
@@ -27,7 +28,6 @@ import org.fossasia.openevent.general.search.location.SAVED_LOCATION
 import org.fossasia.openevent.general.utils.DateTimeUtils
 import org.fossasia.openevent.general.utils.extensions.withDefaultSchedulers
 import timber.log.Timber
-import java.util.Date
 
 const val ORDER_COMPLETED_FRAGMENT = "orderCompletedFragment"
 
@@ -47,7 +47,7 @@ class SearchResultsViewModel(
     val pagedEvents: LiveData<PagedList<Event>> = mutablePagedEvents
     private val mutableEventTypes = MutableLiveData<List<EventType>>()
     private val mutableMessage = SingleLiveEvent<String>()
-    val message: LiveData<String> = mutableMessage
+    val message: SingleLiveEvent<String> = mutableMessage
     val eventTypes: LiveData<List<EventType>> = mutableEventTypes
     val connection: LiveData<Boolean> = mutableConnectionLiveData
 

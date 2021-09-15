@@ -11,22 +11,23 @@ import android.webkit.URLUtil
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import androidx.navigation.fragment.findNavController
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
-import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceFragmentCompat
-import kotlinx.android.synthetic.main.dialog_api_configuration.view.urlTextInputLayout
-import kotlinx.android.synthetic.main.dialog_api_configuration.view.urlEditText
+import androidx.preference.PreferenceManager
+import java.util.prefs.PreferenceChangeEvent
+import java.util.prefs.PreferenceChangeListener
 import kotlinx.android.synthetic.main.dialog_api_configuration.view.urlCheckBox
-import org.jetbrains.anko.design.snackbar
-import kotlinx.android.synthetic.main.dialog_change_password.view.oldPassword
-import kotlinx.android.synthetic.main.dialog_change_password.view.newPassword
+import kotlinx.android.synthetic.main.dialog_api_configuration.view.urlEditText
+import kotlinx.android.synthetic.main.dialog_api_configuration.view.urlTextInputLayout
 import kotlinx.android.synthetic.main.dialog_change_password.view.confirmNewPassword
-import kotlinx.android.synthetic.main.dialog_change_password.view.textInputLayoutNewPassword
+import kotlinx.android.synthetic.main.dialog_change_password.view.newPassword
+import kotlinx.android.synthetic.main.dialog_change_password.view.oldPassword
 import kotlinx.android.synthetic.main.dialog_change_password.view.textInputLayoutConfirmNewPassword
+import kotlinx.android.synthetic.main.dialog_change_password.view.textInputLayoutNewPassword
 import org.fossasia.openevent.general.BuildConfig
 import org.fossasia.openevent.general.FDROID_BUILD_FLAVOR
 import org.fossasia.openevent.general.PLAY_STORE_BUILD_FLAVOR
@@ -36,21 +37,19 @@ import org.fossasia.openevent.general.auth.ProfileViewModel
 import org.fossasia.openevent.general.auth.SmartAuthUtil
 import org.fossasia.openevent.general.auth.SmartAuthViewModel
 import org.fossasia.openevent.general.utils.Utils
-import org.fossasia.openevent.general.utils.nullToEmpty
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.util.prefs.PreferenceChangeEvent
-import java.util.prefs.PreferenceChangeListener
 import org.fossasia.openevent.general.utils.Utils.setToolbar
 import org.fossasia.openevent.general.utils.extensions.nonNull
+import org.fossasia.openevent.general.utils.nullToEmpty
+import org.jetbrains.anko.design.snackbar
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 const val LOCAL_TIMEZONE = "localTimeZone"
 
 class SettingsFragment : PreferenceFragmentCompat(), PreferenceChangeListener {
-    private val FORM_LINK: String = "https://docs.google.com/forms/d/e/" +
-        "1FAIpQLSd7Y1T1xoXeYaAG_b6Tu1YYK-jZssoC5ltmQbkUX0kmDZaKYw/viewform"
-    private val PRIVACY_LINK: String = "https://eventyay.com/privacy-policy/"
-    private val TERMS_OF_SERVICE_LINK: String = "https://eventyay.com/terms/"
-    private val COOKIE_POLICY_LINK: String = "https://eventyay.com/cookie-policy/"
+
+    private val PRIVACY_LINK: String = "https://eventyay.com/privacy-policy"
+    private val TERMS_OF_SERVICE_LINK: String = "https://eventyay.com/terms"
+    private val REFUND_POLICY_LINK: String = "https://eventyay.com/refunds"
     private val WEBSITE_LINK: String = "https://eventyay.com/"
     private val settingsViewModel by viewModel<SettingsViewModel>()
     private val profileViewModel by viewModel<ProfileViewModel>()
@@ -125,11 +124,7 @@ class SettingsFragment : PreferenceFragmentCompat(), PreferenceChangeListener {
             startAppPlayStore(activity?.packageName.nullToEmpty())
             return true
         }
-        if (preference?.key == getString(R.string.key_suggestion)) {
-            // Links to suggestion form
-            Utils.openUrl(requireContext(), FORM_LINK)
-            return true
-        }
+
         if (preference?.key == getString(R.string.key_profile)) {
             showLogoutDialog()
             return true
@@ -154,8 +149,8 @@ class SettingsFragment : PreferenceFragmentCompat(), PreferenceChangeListener {
             Utils.openUrl(requireContext(), TERMS_OF_SERVICE_LINK)
             return true
         }
-        if (preference?.key == getString(R.string.key_cookie_policy)) {
-            Utils.openUrl(requireContext(), COOKIE_POLICY_LINK)
+        if (preference?.key == getString(R.string.key_refund_policy)) {
+            Utils.openUrl(requireContext(), REFUND_POLICY_LINK)
             return true
         }
 

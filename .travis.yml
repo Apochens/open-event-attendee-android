@@ -1,4 +1,5 @@
 language: android
+dist: trusty
 sudo: false
 jdk:
     - oraclejdk8
@@ -23,3 +24,8 @@ script:
   - ./gradlew build
 after_success:
     - bash scripts/update-apk.sh
+
+branches:
+  only:
+    - master
+    - development

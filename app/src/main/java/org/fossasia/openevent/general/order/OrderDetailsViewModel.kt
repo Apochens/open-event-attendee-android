@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
-import org.fossasia.openevent.general.utils.extensions.withDefaultSchedulers
 import org.fossasia.openevent.general.R
 import org.fossasia.openevent.general.attendees.Attendee
 import org.fossasia.openevent.general.auth.AuthHolder
@@ -13,6 +12,7 @@ import org.fossasia.openevent.general.common.SingleLiveEvent
 import org.fossasia.openevent.general.data.Resource
 import org.fossasia.openevent.general.event.Event
 import org.fossasia.openevent.general.event.EventService
+import org.fossasia.openevent.general.utils.extensions.withDefaultSchedulers
 import org.fossasia.openevent.general.utils.nullToEmpty
 import timber.log.Timber
 
@@ -57,7 +57,7 @@ class OrderDetailsViewModel(
         compositeDisposable += orderService
             .getOrderById(orderId)
             .flatMap { order ->
-                orderService.getAttendeesUnderOrder(order.identifier ?: "", order.attendees.map { it.id })
+                orderService.getAttendeesUnderOrder(order.attendees.map { it.id })
             }
             .withDefaultSchedulers()
             .doOnSubscribe {
@@ -66,6 +66,7 @@ class OrderDetailsViewModel(
                 mutableProgress.value = false
             }.subscribe({
                 mutableAttendees.value = it
+                Timber.d("Fetched attendees of size %s", it)
             }, {
                 Timber.e(it, "Error fetching attendee details")
                 message.value = resource.getString(R.string.error_fetching_attendee_details_message)

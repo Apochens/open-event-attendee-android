@@ -4,9 +4,9 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import org.fossasia.openevent.general.attendees.Attendee
+import org.fossasia.openevent.general.attendees.AttendeeConverter
 import org.fossasia.openevent.general.attendees.AttendeeDao
-import org.fossasia.openevent.general.attendees.AttendeeIdConverter
-import org.fossasia.openevent.general.attendees.ListAttendeeIdConverter
+import org.fossasia.openevent.general.attendees.ListAttendeeConverter
 import org.fossasia.openevent.general.attendees.forms.CustomForm
 import org.fossasia.openevent.general.auth.User
 import org.fossasia.openevent.general.auth.UserDao
@@ -15,6 +15,8 @@ import org.fossasia.openevent.general.event.Event
 import org.fossasia.openevent.general.event.EventDao
 import org.fossasia.openevent.general.event.EventIdConverter
 import org.fossasia.openevent.general.event.subtopic.EventSubTopicConverter
+import org.fossasia.openevent.general.event.tax.Tax
+import org.fossasia.openevent.general.event.tax.TaxDao
 import org.fossasia.openevent.general.event.topic.EventTopic
 import org.fossasia.openevent.general.event.topic.EventTopicConverter
 import org.fossasia.openevent.general.event.topic.EventTopicsDao
@@ -34,15 +36,15 @@ import org.fossasia.openevent.general.settings.Settings
 import org.fossasia.openevent.general.settings.SettingsDao
 import org.fossasia.openevent.general.social.SocialLink
 import org.fossasia.openevent.general.social.SocialLinksDao
-import org.fossasia.openevent.general.speakercall.SpeakersCallConverter
-import org.fossasia.openevent.general.speakercall.SpeakersCall
 import org.fossasia.openevent.general.speakercall.Proposal
+import org.fossasia.openevent.general.speakercall.SpeakersCall
+import org.fossasia.openevent.general.speakercall.SpeakersCallConverter
 import org.fossasia.openevent.general.speakercall.SpeakersCallDao
+import org.fossasia.openevent.general.speakers.ListSpeakerIdConverter
 import org.fossasia.openevent.general.speakers.Speaker
 import org.fossasia.openevent.general.speakers.SpeakerDao
 import org.fossasia.openevent.general.speakers.SpeakerWithEvent
 import org.fossasia.openevent.general.speakers.SpeakerWithEventDao
-import org.fossasia.openevent.general.speakers.ListSpeakerIdConverter
 import org.fossasia.openevent.general.sponsor.Sponsor
 import org.fossasia.openevent.general.sponsor.SponsorDao
 import org.fossasia.openevent.general.sponsor.SponsorWithEvent
@@ -54,10 +56,10 @@ import org.fossasia.openevent.general.ticket.TicketIdConverter
 @Database(entities = [Event::class, User::class, SocialLink::class, Ticket::class, Attendee::class,
     EventTopic::class, Order::class, CustomForm::class, Speaker::class, SpeakerWithEvent::class, Sponsor::class,
     SponsorWithEvent::class, Session::class, SpeakersCall::class, Feedback::class, Notification::class,
-    Settings::class, Proposal::class], version = 8)
+    Settings::class, Proposal::class, Tax::class], version = 9)
 @TypeConverters(EventIdConverter::class, EventTopicConverter::class, EventTypeConverter::class,
     EventSubTopicConverter::class, TicketIdConverter::class, MicroLocationConverter::class, UserIdConverter::class,
-    AttendeeIdConverter::class, ListAttendeeIdConverter::class, SessionTypeConverter::class, TrackConverter::class,
+    AttendeeConverter::class, ListAttendeeConverter::class, SessionTypeConverter::class, TrackConverter::class,
     SpeakersCallConverter::class, ListSpeakerIdConverter::class)
 abstract class OpenEventDatabase : RoomDatabase() {
 
@@ -92,4 +94,6 @@ abstract class OpenEventDatabase : RoomDatabase() {
     abstract fun notificationDao(): NotificationDao
 
     abstract fun settingsDao(): SettingsDao
+
+    abstract fun taxDao(): TaxDao
 }

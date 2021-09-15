@@ -5,11 +5,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
-import org.fossasia.openevent.general.utils.extensions.withDefaultSchedulers
 import org.fossasia.openevent.general.R
 import org.fossasia.openevent.general.common.SingleLiveEvent
 import org.fossasia.openevent.general.data.Resource
 import org.fossasia.openevent.general.event.EventService
+import org.fossasia.openevent.general.utils.extensions.withDefaultSchedulers
 import timber.log.Timber
 
 class EventFAQViewModel(private val eventService: EventService, private val resource: Resource) : ViewModel() {
@@ -18,7 +18,7 @@ class EventFAQViewModel(private val eventService: EventService, private val reso
     private val mutableEventFAQ = MutableLiveData<List<EventFAQ>>()
     val eventFAQ: LiveData<List<EventFAQ>> = mutableEventFAQ
     private val mutableError = SingleLiveEvent<String>()
-    val error: LiveData<String> = mutableError
+    val error: SingleLiveEvent<String> = mutableError
 
     fun loadEventFaq(id: Long) {
         if (id == -1L) {
