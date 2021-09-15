@@ -2,6 +2,7 @@ package org.fossasia.openevent.general.search
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -91,6 +92,11 @@ class SearchFragment : Fragment(), ComplexBackPressFragment, BottomIconDoubleCli
         }
 
         rootView.eventTypeTextView.setOnClickListener {
+
+            /** Themis-#2198 */
+            Log.i("Themis-#2198", "Step 2: Clicked the \"And I'm up for\" text view. The crash will occur.");
+            /** Themis-#2198 */
+
             findNavController(rootView).navigate(SearchFragmentDirections.actionSearchToSearchType(
                 fromFragmentName = SEARCH_FRAGMENT
             ))
