@@ -202,7 +202,7 @@ class SearchResultsFragment : Fragment(), CompoundButton.OnCheckedChangeListener
         rootView.filter.setOnClickListener {
 
             /** Themis-#2198-Medium */
-            Log.i("Themis-#2198-Medium", "Step 3: Clicked \"filter\" image button in search result page.")
+            Log.i("Themis", "Step 3: Clicked \"filter\" image button in search result page.")
             /** Themis-#2198-Medium */
 
             findNavController(rootView)
