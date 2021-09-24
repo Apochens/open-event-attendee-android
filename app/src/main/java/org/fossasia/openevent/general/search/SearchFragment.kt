@@ -94,7 +94,7 @@ class SearchFragment : Fragment(), ComplexBackPressFragment, BottomIconDoubleCli
         rootView.eventTypeTextView.setOnClickListener {
 
             /** Themis-#2198 */
-            Log.i("Themis-#2198", "Step 2: Clicked the \"And I'm up for\" text view. The crash will occur.");
+            Log.i("Themis", "Step 2: Clicked the \"And I'm up for\" text view. The crash will occur.");
             /** Themis-#2198 */
 
             findNavController(rootView).navigate(SearchFragmentDirections.actionSearchToSearchType(

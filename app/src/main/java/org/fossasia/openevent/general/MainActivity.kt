@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
 
             /** Themis-#2198 */
             if (currentFragmentId == 2131297037) {
-                Log.i("Themis-#2198", "Step 1: Selected the \"Search\" in the bottom NavBar.");
+                Log.i("Themis", "Step 1: Selected the \"Search\" in the bottom NavBar.");
             }
             /** Themis-#2198 */
 
