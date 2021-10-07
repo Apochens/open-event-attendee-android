@@ -127,7 +127,7 @@ class SearchFilterFragment : Fragment() {
         rootView.tvSelectCategory.setOnClickListener {
 
             /** Themis-#2198-Medium */
-            Log.i("Themis", "Step 4: Clicked the \"Category\" text view in search filter page.")
+            Log.i("Themis", "Event 4: Clicked the \"Category\" text view in search filter page.")
             /** Themis-#2198-Medium */
 
             findNavController(rootView).navigate(SearchFilterFragmentDirections.actionSearchFilterToSearchType(

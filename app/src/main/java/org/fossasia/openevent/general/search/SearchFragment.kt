@@ -109,7 +109,7 @@ class SearchFragment : Fragment(), ComplexBackPressFragment, BottomIconDoubleCli
         rootView.fabSearch.setOnClickListener {
 
             /** Themis-#2198-Medium */
-            Log.i("Themis", "Step 2: Clicked the fabSearch in Search page.")
+            Log.i("Themis", "Event 2: Clicked the fabSearch in Search page.")
             /** Themis-#2198-Medium */
 
             makeSearch()
