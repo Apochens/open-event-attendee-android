@@ -97,9 +97,15 @@ class SearchFragment : Fragment(), ComplexBackPressFragment, BottomIconDoubleCli
             Log.i("Themis", "Event 2: Clicked the \"And I'm up for\" text view. The crash will occur.");
             /** Themis-#2198 */
 
-            findNavController(rootView).navigate(SearchFragmentDirections.actionSearchToSearchType(
-                fromFragmentName = SEARCH_FRAGMENT
-            ))
+            try {
+                findNavController(rootView).navigate(SearchFragmentDirections.actionSearchToSearchType(
+                    fromFragmentName = SEARCH_FRAGMENT
+                ))
+            } catch (e: InstantiationException) {
+                Log.i("Themis", "Crash!: InstantiationException")
+                throw e
+            }
+
         }
 
         if (searchViewModel.isQuerying)
