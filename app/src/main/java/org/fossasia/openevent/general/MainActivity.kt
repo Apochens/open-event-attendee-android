@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
 
             /** Themis-#2198-Medium */
             if (destination.label == "SearchFragment" && currentFragmentId != destination.id) {
-                Log.i("Themis-#2198-Medium", "Event 1: Selected the \"Search\" in the bottom NavBar.");
+                Log.i("Themis", "Event 1: Selected the \"Search\" in the bottom NavBar.");
             }
             /** Themis-#2198-Medium */
 
