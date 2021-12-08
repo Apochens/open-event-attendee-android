@@ -127,14 +127,19 @@ class SearchFilterFragment : Fragment() {
         rootView.tvSelectCategory.setOnClickListener {
 
             /** Themis-#2198-Medium */
-            Log.i("Themis-#2198-Medium", "Step 4: Clicked the \"Category\" text view in search filter page.")
+            Log.i("Themis-#2198-Medium", "Event 4: Clicked the \"Category\" text view in search filter page.")
             /** Themis-#2198-Medium */
 
-            findNavController(rootView).navigate(SearchFilterFragmentDirections.actionSearchFilterToSearchType(
-                selectedCategory,
-                SEARCH_FILTER_FRAGMENT,
-                safeArgs.query
-            ))
+            try {
+                findNavController(rootView).navigate(SearchFilterFragmentDirections.actionSearchFilterToSearchType(
+                    selectedCategory,
+                    SEARCH_FILTER_FRAGMENT,
+                    safeArgs.query
+                ))
+            } catch (e: Exception) {
+                Log.i("Themis", "Crash!")
+                throw e
+            }
         }
 
         rootView.freeStuffCheckBox.isChecked = safeArgs.freeEvents
