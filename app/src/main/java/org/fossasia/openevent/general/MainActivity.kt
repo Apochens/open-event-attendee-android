@@ -39,7 +39,6 @@ class MainActivity : AppCompatActivity() {
         setupBottomNavigationMenu(navController)
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            currentFragmentId = destination.id
 
             /** Themis-#2198-Medium */
             if (destination.label == "SearchFragment" && currentFragmentId != destination.id) {
@@ -47,6 +46,7 @@ class MainActivity : AppCompatActivity() {
             }
             /** Themis-#2198-Medium */
 
+            currentFragmentId = destination.id
             handleNavigationVisibility(currentFragmentId)
         }
         AppLinkUtils.handleIntent(intent, navController)
